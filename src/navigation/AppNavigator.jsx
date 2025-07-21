@@ -13,17 +13,15 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { MealFormScreen } from '../screens/MealFormScreen';
 import { SymptomFormScreen } from '../screens/SymptomFormScreen';
 
-import { RootStackParamList, BottomTabParamList } from '../types';
-
-const Stack = createStackNavigator<RootStackParamList>();
-const Tab = createBottomTabNavigator<BottomTabParamList>();
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap;
+          let iconName;
 
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline';

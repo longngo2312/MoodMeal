@@ -9,20 +9,16 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { Meal, Symptom, RootStackParamList } from '../types';
 
-type DashboardNavigationProp = StackNavigationProp<RootStackParamList>;
-
-export const DashboardScreen: React.FC = () => {
-  const navigation = useNavigation<DashboardNavigationProp>();
+export const DashboardScreen = () => {
+  const navigation = useNavigation();
   const { user } = useAuth();
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [symptoms, setSymptoms] = useState<Symptom[]>([]);
+  const [meals, setMeals] = useState([]);
+  const [symptoms, setSymptoms] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -58,14 +54,14 @@ export const DashboardScreen: React.FC = () => {
 
       setMeals(mealsData || []);
       setSymptoms(symptomsData || []);
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const quickLogSymptom = (symptomType: string, severity: number) => {
+  const quickLogSymptom = (symptomType, severity) => {
     const now = new Date();
     const date = now.toISOString().split('T')[0];
     const time = now.toTimeString().split(' ')[0];
@@ -73,7 +69,7 @@ export const DashboardScreen: React.FC = () => {
     navigation.navigate('SymptomForm', {
       symptom: {
         id: '',
-        user_id: user!.id,
+        user_id: user.id,
         symptom_type: symptomType,
         severity,
         description: '',
@@ -84,7 +80,7 @@ export const DashboardScreen: React.FC = () => {
     });
   };
 
-  const renderMealCard = (meal: Meal) => (
+  const renderMealCard = (meal) => (
     <View key={meal.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{meal.name}</Text>
@@ -97,7 +93,7 @@ export const DashboardScreen: React.FC = () => {
     </View>
   );
 
-  const renderSymptomCard = (symptom: Symptom) => (
+  const renderSymptomCard = (symptom) => (
     <View key={symptom.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{symptom.symptom_type}</Text>

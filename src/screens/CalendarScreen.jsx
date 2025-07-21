@@ -7,24 +7,20 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Calendar, DateData } from 'react-native-calendars';
+import { Calendar } from 'react-native-calendars';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { Symptom, Meal } from '../types';
 
-interface DayData {
-  symptoms: Symptom[];
-  meals: Meal[];
-}
-
-export const CalendarScreen: React.FC = () => {
+export const CalendarScreen = () => {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<string>(
+  const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split('T')[0]
   );
-  const [monthlyData, setMonthlyData] = useState<{ [key: string]: DayData }>({});
-  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
+  /** @type {[Object, Function]} */
+  const [monthlyData, setMonthlyData] = useState({});
+  /** @type {[Object, Function]} */
+  const [markedDates, setMarkedDates] = useState({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -66,8 +62,8 @@ export const CalendarScreen: React.FC = () => {
       if (mealsError) throw mealsError;
 
       // Organize data by date
-      const dataByDate: { [key: string]: DayData } = {};
-      const marked: { [key: string]: any } = {};
+      const dataByDate = {};
+      const marked = {};
 
       // Process symptoms
       (symptomsData || []).forEach(symptom => {
@@ -116,14 +112,14 @@ export const CalendarScreen: React.FC = () => {
 
       setMonthlyData(dataByDate);
       setMarkedDates(marked);
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const onDayPress = (day: DateData) => {
+  const onDayPress = (day) => {
     setSelectedDate(day.dateString);
     
     // Update marked dates to show new selection
@@ -150,7 +146,7 @@ export const CalendarScreen: React.FC = () => {
     setMarkedDates(newMarked);
   };
 
-  const renderSymptomCard = (symptom: Symptom) => (
+  const renderSymptomCard = (symptom) => (
     <View key={symptom.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{symptom.symptom_type}</Text>
@@ -163,7 +159,7 @@ export const CalendarScreen: React.FC = () => {
     </View>
   );
 
-  const renderMealCard = (meal: Meal) => (
+  const renderMealCard = (meal) => (
     <View key={meal.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{meal.name}</Text>
@@ -173,7 +169,7 @@ export const CalendarScreen: React.FC = () => {
     </View>
   );
 
-  const getSeverityColor = (severity: number) => {
+  const getSeverityColor = (severity) => {
     if (severity <= 3) return '#4caf50';
     if (severity <= 6) return '#ff9800';
     return '#f44336';

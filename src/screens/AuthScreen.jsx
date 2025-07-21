@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
-export const AuthScreen: React.FC = () => {
+export const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +33,7 @@ export const AuthScreen: React.FC = () => {
         await signUp(email, password);
         Alert.alert('Success', 'Account created! Please check your email to verify your account.');
       }
-    } catch (error: any) {
+        } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);

@@ -13,12 +13,10 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { Profile, ProfileFormData } from '../types';
-
-export const ProfileScreen: React.FC = () => {
+export const ProfileScreen = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<ProfileFormData>({
+  const [profile, setProfile] = useState({
     name: '',
     age: 0,
     gender: 'other',
@@ -37,7 +35,7 @@ export const ProfileScreen: React.FC = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user!.id)
+        .eq('user_id', user.id)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -48,11 +46,11 @@ export const ProfileScreen: React.FC = () => {
         setProfile({
           name: data.name,
           age: data.age,
-          gender: data.gender as 'male' | 'female' | 'other',
+          gender: data.gender,
           medical_history: data.medical_history || [],
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     }
   };
@@ -67,7 +65,7 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
-  const removeMedicalHistory = (index: number) => {
+  const removeMedicalHistory = (index) => {
     setProfile(prev => ({
       ...prev,
       medical_history: prev.medical_history.filter((_, i) => i !== index),
@@ -85,7 +83,7 @@ export const ProfileScreen: React.FC = () => {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          user_id: user!.id,
+          user_id: user.id,
           name: profile.name,
           age: profile.age,
           gender: profile.gender,
@@ -96,7 +94,7 @@ export const ProfileScreen: React.FC = () => {
       if (error) throw error;
 
       Alert.alert('Success', 'Profile saved successfully!');
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
