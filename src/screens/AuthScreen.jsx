@@ -54,92 +54,93 @@ export const AuthScreen = () => {
   // UI Render
   return (
     // KeyboardAvoidingView handles keyboard behavior on different platforms
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <LinearGradient
+      colors={['#aca8f0ff','#826ef5ff','#3d1bf9ff']}
+      style={styles.gradientBackground}
+      start={{x:0.3,y:1}}
+      end={{x:1,y:0.7}}
     >
-      <LinearGradient
-        colors={['#3123f481','#9381f9','#5b43e380']}
-        start={{x:-100,y:-355}}
-        end={{x:100,y:355}}
-        style={styles.gradientBackground}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* ScrollView allows content to scroll when keyboard is shown */}
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.formContainer}>
-            <MaterialCommunityIcons name="food-apple-outline" size={64} color="#2e7d32" style={styles.appIcon} />
-            <Text style={styles.title}>Moodmeal</Text>
-            <Text style={styles.subtitle}>Track your meals and symptoms</Text>
+          {/* ScrollView allows content to scroll when keyboard is shown */}
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.formContainer}>
+              <MaterialCommunityIcons name="food-apple-outline" size={64} color="#2e7d32" style={styles.appIcon} />
+              <Text style={styles.title}>Moodmeal</Text>
+              <Text style={styles.subtitle}>Track your meals and symptoms</Text>
 
-            <View style={styles.form}>
-              {/*Email Input*/}
-              <View style={styles.inputContainer}>
-                <Feather name="mail" size={20} color="#9ca3af" style={styles.inputIcon}/>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Email"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholderTextColor="#9ca3af"
-                />
-              </View>
+              <View style={styles.form}>
+                {/*Email Input*/}
+                <View style={styles.inputContainer}>
+                  <Feather name="mail" size={20} color="#9ca3af" style={styles.inputIcon}/>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholderTextColor="#9ca3af"
+                  />
+                </View>
 
-              <View style={styles.inputContainer}>
-                <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon}/>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  keyboardType="email-address"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholderTextColor="#9ca3af"
-                />
-              </View>
+                <View style={styles.inputContainer}>
+                  <Feather name="lock" size={20} color="#9ca3af" style={styles.inputIcon}/>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    keyboardType="email-address"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholderTextColor="#9ca3af"
+                  />
+                </View>
 
-              
+                
 
-              <TouchableOpacity
-                style={[
-                  styles.button, 
-                  loading && styles.buttonDisabled,
-                  isLogin ? styles.button : styles.button,
-                ]}
-                onPress={handleAuth}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <Text style={styles.buttonText}>
-                    {isLogin ? 'Sign In' : 'Sign Up'}
+                <TouchableOpacity
+                  style={[
+                    styles.button, 
+                    loading && styles.buttonDisabled,
+                    isLogin ? styles.button : styles.button,
+                  ]}
+                  onPress={handleAuth}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.buttonText}>
+                      {isLogin ? 'Sign In' : 'Sign Up'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.switchButton}
+                  onPress={() => setIsLogin(!isLogin)}
+                >
+                  <Text style={styles.switchText}>
+                    {isLogin
+                      ? "Don't have an account? "
+                      : 'Already have an account? '}
+                    <Text style={styles.switchLinkText}>
+                      {isLogin ? 'Sign Up' : 'Sign In'}
+                    </Text>
                   </Text>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.switchButton}
-                onPress={() => setIsLogin(!isLogin)}
-              >
-                <Text style={styles.switchText}>
-                  {isLogin
-                    ? "Don't have an account? "
-                    : 'Already have an account? '}
-                  <Text style={styles.switchLinkText}>
-                    {isLogin ? 'Sign Up' : 'Sign In'}
-                  </Text>
-                </Text>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </LinearGradient>
-    </KeyboardAvoidingView>
+          </ScrollView>
+        
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 };
 
@@ -148,7 +149,6 @@ const styles = StyleSheet.create({
   // Container styles
   container: {
     flex: 1,
-    backgroundColor: '#507A86',
     justifyContent: 'center',
     //alignItems: 'center',
     padding: 20,
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     flex: 1, // Make the gradient fill its parent
     width: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 32,
     alignItems: 'center',
-    width: '100%',
+    width: '88%',
     maxWidth: 500,
     alignItems: 'center',
 
