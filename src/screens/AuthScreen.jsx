@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 32,
     alignItems: 'center',
-    width: '95%',
+    width: '100%',
     maxWidth: 500,
     alignItems: 'center',
 
