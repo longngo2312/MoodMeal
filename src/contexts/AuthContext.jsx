@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
-import { AuthContextType, User } from '../types';
+import { isNetworkError } from '../utils/networkUtils';
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -12,12 +12,8 @@ export const useAuth = () => {
   return context;
 };
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +21,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ? {
         id: session.user.id,
-        email: session.user.email!,
+        email: session.user.email,
         created_at: session.user.created_at
       } : null);
       setLoading(false);
@@ -36,7 +32,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       async (event, session) => {
         setUser(session?.user ? {
           id: session.user.id,
-          email: session.user.email!,
+          email: session.user.email,
           created_at: session.user.created_at
         } : null);
         setLoading(false);
@@ -46,15 +42,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+  const signIn = async (email, password) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        if (isNetworkError(error)) {
+          throw new Error('Network connection lost. Please check your internet connection and try again.');
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+      throw error;
+    }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email, password) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -67,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (error) throw error;
   };
 
-  const value: AuthContextType = {
+  const value = {
     user,
     loading,
     signIn,

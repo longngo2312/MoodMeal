@@ -10,19 +10,15 @@ import {
   Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { RootStackParamList } from '../types';
 
-type SettingsNavigationProp = StackNavigationProp<RootStackParamList>;
-
-export const SettingsScreen: React.FC = () => {
-  const navigation = useNavigation<SettingsNavigationProp>();
+export const SettingsScreen = () => {
+  const navigation = useNavigation();
   const { user, signOut } = useAuth();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -42,7 +38,7 @@ export const SettingsScreen: React.FC = () => {
           onPress: async () => {
             try {
               await signOut();
-            } catch (error: any) {
+            } catch (error) {
               Alert.alert('Error', error.message);
             }
           },
@@ -80,7 +76,7 @@ export const SettingsScreen: React.FC = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -180,7 +176,7 @@ export const SettingsScreen: React.FC = () => {
       } else {
         Alert.alert('Success', 'PDF generated successfully!');
       }
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);

@@ -10,22 +10,19 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { RootStackParamList, SymptomFormData } from '../types';
 
-type SymptomFormRouteProp = RouteProp<RootStackParamList, 'SymptomForm'>;
-
-export const SymptomFormScreen: React.FC = () => {
+export const SymptomFormScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute<SymptomFormRouteProp>();
+  const route = useRoute();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   
-  const [formData, setFormData] = useState<SymptomFormData>({
+  const [formData, setFormData] = useState({
     symptom_type: '',
     severity: 5,
     description: '',
@@ -55,7 +52,7 @@ export const SymptomFormScreen: React.FC = () => {
     setLoading(true);
     try {
       const symptomData = {
-        user_id: user!.id,
+        user_id: user.id,
         symptom_type: formData.symptom_type,
         severity: formData.severity,
         description: formData.description,
@@ -83,20 +80,20 @@ export const SymptomFormScreen: React.FC = () => {
       }
 
       navigation.goBack();
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getSeverityColor = (severity: number) => {
+  const getSeverityColor = (severity) => {
     if (severity <= 3) return '#4caf50';
     if (severity <= 6) return '#ff9800';
     return '#f44336';
   };
 
-  const getSeverityLabel = (severity: number) => {
+  const getSeverityLabel = (severity) => {
     if (severity <= 2) return 'Very Mild';
     if (severity <= 4) return 'Mild';
     if (severity <= 6) return 'Moderate';
@@ -136,7 +133,7 @@ export const SymptomFormScreen: React.FC = () => {
                 maximumValue={10}
                 step={1}
                 value={formData.severity}
-                onValueChange={(value: number) => setFormData(prev => ({ ...prev, severity: value }))}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, severity: value }))}
                 minimumTrackTintColor={getSeverityColor(formData.severity)}
                 maximumTrackTintColor="#ddd"
                 thumbTintColor={getSeverityColor(formData.severity)}

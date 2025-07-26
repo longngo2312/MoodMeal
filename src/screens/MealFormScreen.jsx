@@ -10,22 +10,19 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-import { RootStackParamList, MealFormData } from '../types';
 
-type MealFormRouteProp = RouteProp<RootStackParamList, 'MealForm'>;
-
-export const MealFormScreen: React.FC = () => {
+export const MealFormScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute<MealFormRouteProp>();
+  const route = useRoute();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   
-  const [formData, setFormData] = useState<MealFormData>({
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
     ingredients: [],
@@ -42,7 +39,7 @@ export const MealFormScreen: React.FC = () => {
         name: meal.name,
         description: meal.description,
         ingredients: meal.ingredients,
-        meal_time: meal.meal_time as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+        meal_time: meal.meal_time,
         date: meal.date,
       });
     }
@@ -58,7 +55,7 @@ export const MealFormScreen: React.FC = () => {
     }
   };
 
-  const removeIngredient = (index: number) => {
+  const removeIngredient = (index) => {
     setFormData(prev => ({
       ...prev,
       ingredients: prev.ingredients.filter((_, i) => i !== index),
@@ -74,7 +71,7 @@ export const MealFormScreen: React.FC = () => {
     setLoading(true);
     try {
       const mealData = {
-        user_id: user!.id,
+        user_id: user.id,
         name: formData.name,
         description: formData.description,
         ingredients: formData.ingredients,
@@ -102,7 +99,7 @@ export const MealFormScreen: React.FC = () => {
       }
 
       navigation.goBack();
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
