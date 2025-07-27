@@ -100,7 +100,7 @@ export const ProfileScreen = () => {
       setLoading(false);
     }
   };
-
+  {/* Rendering the setting screens */}
   return (
     <KeyboardAvoidingView
       style={styles.container}

@@ -80,6 +80,7 @@ export const AppNavigator = () => {
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
+            {/* profile page */}
             <Stack.Screen 
               name="Profile" 
               component={ProfileScreen}

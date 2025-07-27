@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
+import {Dropdown} from 'react-native-element-dropdown'
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
@@ -21,12 +21,19 @@ export const MealFormScreen = () => {
   const route = useRoute();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const data = [
+    {label: 'Breakfast', value: 'Breakfast'},
+    {label: 'Lunch', value: 'Lunch'},
+    {label: 'Dinner', value: 'Dinner'},
+    {label: 'Snack', value: 'Snack'},
+  ]
+  const [isFocus, setIsFocus] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     ingredients: [],
-    meal_time: 'breakfast',
+    meal_time: 'Select Item',
     date: new Date().toISOString().split('T')[0],
   });
   
@@ -134,16 +141,27 @@ export const MealFormScreen = () => {
 
             <Text style={styles.label}>Meal Time</Text>
             <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={formData.meal_time}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, meal_time: value }))}
-                style={styles.picker}
-              >
-                <Picker.Item label="Breakfast" value="breakfast" />
-                <Picker.Item label="Lunch" value="lunch" />
-                <Picker.Item label="Dinner" value="dinner" />
-                <Picker.Item label="Snack" value="snack" />
-              </Picker>
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: 'green' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={data}
+                search
+                height= {50}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Select item' : '...'}
+                searchPlaceholder="Search..."
+                value={formData.meal_time}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setFormData(prev => ({ ...prev, meal_time: item.value }));
+                  setIsFocus(false);
+                }}
+                />
             </View>
 
             <Text style={styles.label}>Date</Text>
@@ -231,9 +249,18 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     marginBottom: 16,
-  },
-  picker: {
     height: 50,
+  },
+  dropdown: {
+    maxHeight: 350,
+    position: 'right',
+    backgroundColor: 'White',
+    paddingHorizontal: 8,
+    height: 50,
+  },
+  iconStyle:{
+    width: 20,
+    height: 20,
   },
   ingredientContainer: {
     flexDirection: 'row',
