@@ -54,7 +54,8 @@ export const AuthProvider = ({ children }) => {
         }
         throw error;
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Sign in error:', error);
       throw error;
     }

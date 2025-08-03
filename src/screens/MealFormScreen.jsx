@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {Dropdown} from 'react-native-element-dropdown'
-
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
 
@@ -143,16 +143,16 @@ export const MealFormScreen = () => {
             <View style={styles.pickerContainer}>
               <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'green' }]}
-                placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
+                searchPlaceholderTextColor='black'
                 iconStyle={styles.iconStyle}
                 data={data}
                 search
                 height= {50}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? 'Select item' : '...'}
+                placeholder={!isFocus ? '':'...'}
+                placeholderTextColor='#eeeeee'
                 searchPlaceholder="Search..."
                 value={formData.meal_time}
                 onFocus={() => setIsFocus(true)}
@@ -193,15 +193,22 @@ export const MealFormScreen = () => {
                 </TouchableOpacity>
               </View>
             ))}
-
+            {/* Save Meal Button */}
             <TouchableOpacity
               style={[styles.saveButton, loading && styles.buttonDisabled]}
               onPress={saveMeal}
               disabled={loading}
             >
-              <Text style={styles.saveButtonText}>
-                {loading ? 'Saving...' : route.params?.meal ? 'Update Meal' : 'Save Meal'}
-              </Text>
+              <LinearGradient
+                style={styles.LinearGradient}
+                colors={['#3d1bf9ff','#826ef5ff']}
+                start={{x:0, y:0.5}}
+                end={{x:1,y:0.5}}
+              >
+                <Text style={styles.saveButtonText}>
+                  {loading ? 'Saving...' : route.params?.meal ? 'Update Meal' : 'Save Meal'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -213,7 +220,7 @@ export const MealFormScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#111111',
   },
   scrollView: {
     flex: 1,
@@ -222,14 +229,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: '#444444',
     borderRadius: 8,
     padding: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#eeeeee',
     marginBottom: 8,
   },
   input: {
@@ -239,6 +246,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
+    color: '#eeeeee',
   },
   textArea: {
     height: 80,
@@ -258,6 +266,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     height: 50,
   },
+  selectedTextStyle:{
+    color: '#eeeeee',
+  }, 
   iconStyle:{
     width: 20,
     height: 20,
@@ -268,13 +279,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addButton: {
-    backgroundColor: '#2e7d32',
+    backgroundColor: '#2c2c2c',
     borderRadius: 8,
     padding: 12,
     marginLeft: 8,
   },
   addButtonText: {
-    color: 'white',
+    color: '#00e6ff',
     fontWeight: 'bold',
   },
   ingredientItem: {
@@ -295,11 +306,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   saveButton: {
-    backgroundColor: '#2e7d32',
     borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
     marginTop: 20,
+    overflow: 'hidden',
+  },
+  LinearGradient: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonDisabled: {
     backgroundColor: '#ccc',

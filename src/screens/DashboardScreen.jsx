@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-
+import { LinearGradient } from 'expo-linear-gradient';
 export const DashboardScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
@@ -114,34 +114,44 @@ export const DashboardScreen = () => {
       }
     >
       <View style={styles.content}>
-        <Text style={styles.welcomeText}>Welcome back!</Text>
-        <Text style={styles.dateText}>
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </Text>
-
+        <View style={styles.WelcomeContainer}>
+          <LinearGradient
+            style={styles.LinearGradient}
+            colors={['#3d1bf9ff','#826ef5ff']}
+            start={{x:0, y:0.5}}
+            end={{x:1,y:0.5}}
+          >
+            <Text style={styles.welcomeText}>Welcome back!</Text>
+            <Text style={styles.dateText}>
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </Text>
+          </LinearGradient>
+        </View>
         {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActions}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('MealForm', {})}
-            >
-              <Ionicons name="restaurant" size={24} color="white" />
-              <Text style={styles.actionButtonText}>Log Meal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('SymptomForm', {})}
-            >
-              <Ionicons name="medical" size={24} color="white" />
-              <Text style={styles.actionButtonText}>Log Symptom</Text>
-            </TouchableOpacity>
+        <View style={styles.Quick}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.quickActions}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('MealForm', {})}
+              >
+                <Ionicons name="restaurant" size={24} color="white" />
+                <Text style={styles.actionButtonText}>Log Meal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('SymptomForm', {})}
+              >
+                <Ionicons name="medical" size={24} color="white" />
+                <Text style={styles.actionButtonText}>Log Symptom</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -197,7 +207,15 @@ export const DashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#111111',
+  },
+  LinearGradient: {
+    flex: 1,
+    borderRadius: 16, 
+    paddingVertical: 16, 
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   content: {
     padding: 16,
@@ -205,13 +223,16 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2e7d32',
+    color: '#ffffffff',
     marginBottom: 4,
+    textAlign: 'center',
+    marginTop: 4,
   },
   dateText: {
     fontSize: 16,
-    color: '#666',
+    color: '#ffffffbb',
     marginBottom: 24,
+    textAlign: 'center',
   },
   section: {
     marginBottom: 24,

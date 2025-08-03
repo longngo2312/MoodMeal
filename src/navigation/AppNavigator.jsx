@@ -35,10 +35,13 @@ const TabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2e7d32',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: '#00e6ff',
+        tabBarInactiveTintColor: '#eeeeee',
+        tabBarStyle: {
+          backgroundColor: '#444444',
+        },
         headerStyle: {
-          backgroundColor: '#2e7d32',
+          backgroundColor: '#4037dfff',
         },
         headerTintColor: 'white',
         headerTitleStyle: {
@@ -91,13 +94,14 @@ export const AppNavigator = () => {
                 headerTintColor: 'white',
               }}
             />
+            
             <Stack.Screen 
               name="MealForm" 
               component={MealFormScreen}
               options={{
                 headerShown: true,
                 title: 'Log Meal',
-                headerStyle: { backgroundColor: '#2e7d32' },
+                headerStyle: { backgroundColor: '#4037dfff' },
                 headerTintColor: 'white',
               }}
             />

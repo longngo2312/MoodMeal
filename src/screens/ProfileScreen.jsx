@@ -10,12 +10,14 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import { Dropdown } from 'react-native-element-dropdown';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
+
 export const ProfileScreen = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [isFocus, setIsFocus] = useState(false); // added focus state for dropdown
   const [profile, setProfile] = useState({
     name: '',
     age: 0,
@@ -23,6 +25,12 @@ export const ProfileScreen = () => {
     medical_history: [],
   });
   const [medicalHistoryInput, setMedicalHistoryInput] = useState('');
+
+  const genderData = [
+    { label: 'Male', value: 'Male' },
+    { label: 'Female', value: 'Female' },
+    { label: 'Others', value: 'Others' },
+  ];
 
   useEffect(() => {
     if (user) {
@@ -100,7 +108,7 @@ export const ProfileScreen = () => {
       setLoading(false);
     }
   };
-  {/* Rendering the setting screens */}
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -130,15 +138,27 @@ export const ProfileScreen = () => {
 
             <Text style={styles.label}>Gender</Text>
             <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={profile.gender}
-                onValueChange={(value) => setProfile(prev => ({ ...prev, gender: value }))}
-                style={styles.picker}
-              >
-                <Picker.Item label="Male" value="male" />
-                <Picker.Item label="Female" value="female" />
-                <Picker.Item label="Other" value="other" />
-              </Picker>
+              <Dropdown
+                style={[styles.dropdown, isFocus && { borderColor: 'green' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                iconStyle={styles.iconStyle}
+                data={genderData}
+                search
+                height={50}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Select gender' : '...'}
+                searchPlaceholder="Search..."
+                value={profile.gender}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setProfile(prev => ({ ...prev, gender: item.value }));
+                  setIsFocus(false);
+                }}
+              />
             </View>
 
             <Text style={styles.label}>Medical History</Text>
@@ -215,6 +235,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
+    flex: 1,
   },
   pickerContainer: {
     borderWidth: 1,
@@ -222,8 +243,26 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
   },
-  picker: {
+  dropdown: {
+    backgroundColor: 'white',
+    paddingHorizontal: 8,
     height: 50,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: '#999',
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: '#000',
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
   },
   medicalHistoryContainer: {
     flexDirection: 'row',

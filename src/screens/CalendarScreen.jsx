@@ -107,7 +107,7 @@ export const CalendarScreen = () => {
       marked[selectedDate] = {
         ...marked[selectedDate],
         selected: true,
-        selectedColor: '#2e7d32',
+        selectedColor: '#4037dfff',
       };
 
       setMonthlyData(dataByDate);
@@ -140,7 +140,7 @@ export const CalendarScreen = () => {
     newMarked[day.dateString] = {
       ...newMarked[day.dateString],
       selected: true,
-      selectedColor: '#2e7d32',
+      selectedColor: '#4037dfff',
     };
     
     setMarkedDates(newMarked);
@@ -187,17 +187,17 @@ export const CalendarScreen = () => {
             backgroundColor: '#ffffff',
             calendarBackground: '#ffffff',
             textSectionTitleColor: '#b6c1cd',
-            selectedDayBackgroundColor: '#2e7d32',
+            selectedDayBackgroundColor: '#4037dfff',
             selectedDayTextColor: '#ffffff',
-            todayTextColor: '#2e7d32',
+            todayTextColor: '#4037dfff',
             dayTextColor: '#2d4150',
             textDisabledColor: '#d9e1e8',
             dotColor: '#00adf5',
             selectedDotColor: '#ffffff',
-            arrowColor: '#2e7d32',
+            arrowColor: '#4037dfff',
             disabledArrowColor: '#d9e1e8',
-            monthTextColor: '#2e7d32',
-            indicatorColor: '#2e7d32',
+            monthTextColor: '#4037dfff',
+            indicatorColor: '#4037dfff',
             textDayFontWeight: '300',
             textMonthFontWeight: 'bold',
             textDayHeaderFontWeight: '300',
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   dayTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2e7d32',
+    color: '#3b48aeff',
     marginBottom: 16,
     textAlign: 'center',
   },

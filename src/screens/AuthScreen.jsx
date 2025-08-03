@@ -187,12 +187,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: '#000000ff',
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#4b5563',
+    color: '#000000ff',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -224,12 +224,12 @@ const styles = StyleSheet.create({
   
   // Button styles
   button: {
-    backgroundColor: '#6a53eeff',
+    backgroundColor: '#5c5cf6ff', // Fallback purple color
+    shadowColor: '#8b5cf6',
     borderRadius: 6,
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#000',
     shadowOffset : {width: 0, height: 10},
     shadowOpacity: 0.25,
     shadowRadius: 10,
