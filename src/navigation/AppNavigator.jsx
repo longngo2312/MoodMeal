@@ -90,7 +90,7 @@ export const AppNavigator = () => {
               options={{
                 headerShown: true,
                 title: 'Profile',
-                headerStyle: { backgroundColor: '#2e7d32' },
+                headerStyle: { backgroundColor: '#4037dfff' },
                 headerTintColor: 'white',
               }}
             />
@@ -111,7 +111,7 @@ export const AppNavigator = () => {
               options={{
                 headerShown: true,
                 title: 'Log Symptom',
-                headerStyle: { backgroundColor: '#2e7d32' },
+                headerStyle: { backgroundColor: '#4037dfff' },
                 headerTintColor: 'white',
               }}
             />

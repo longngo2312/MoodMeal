@@ -12,10 +12,16 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
-
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-
+const COLORS = {
+  background_color: '#111111',
+  textcolor: '#00e6ff',
+  whitetext: '#eeeeee',
+  container: '#2c2c2c',
+  themepurple: '#3d1bf9ff'
+}
 export const SymptomFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -115,6 +121,7 @@ export const SymptomFormScreen = () => {
               value={formData.symptom_type}
               onChangeText={(text) => setFormData(prev => ({ ...prev, symptom_type: text }))}
               placeholder="e.g., Headache, Nausea, Stomach Pain"
+              placeholderTextColor={'#606060ff'}
             />
 
             <Text style={styles.label}>Severity (1-10)</Text>
@@ -150,6 +157,7 @@ export const SymptomFormScreen = () => {
               value={formData.description}
               onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
               placeholder="Describe your symptom in detail"
+              placeholderTextColor={'#606060ff'}
               multiline
               numberOfLines={4}
             />
@@ -175,9 +183,16 @@ export const SymptomFormScreen = () => {
               onPress={saveSymptom}
               disabled={loading}
             >
-              <Text style={styles.saveButtonText}>
-                {loading ? 'Saving...' : route.params?.symptom?.id ? 'Update Symptom' : 'Save Symptom'}
-              </Text>
+              <LinearGradient
+                style={styles.LinearGradient}
+                colors={['#3d1bf9ff','#826ef5ff']}
+                start={{x:0, y:0.5}}
+                end={{x:1,y:0.5}}
+              >
+                <Text style={styles.saveButtonText}>
+                  {loading ? 'Saving...' : route.params?.symptom?.id ? 'Update Symptom' : 'Save Symptom'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -189,7 +204,7 @@ export const SymptomFormScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background_color,
   },
   scrollView: {
     flex: 1,
@@ -198,23 +213,24 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.container,
     borderRadius: 8,
     padding: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.whitetext,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: COLORS.whitetext,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
+    color: COLORS.whitetext,
   },
   textArea: {
     height: 100,
@@ -248,14 +264,12 @@ const styles = StyleSheet.create({
   },
   scaleText: {
     fontSize: 12,
-    color: '#666',
+    color: COLORS.whitetext,
   },
   saveButton: {
-    backgroundColor: '#2e7d32',
     borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
     marginTop: 20,
+    overflow: 'hidden',
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
@@ -264,5 +278,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  LinearGradient: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

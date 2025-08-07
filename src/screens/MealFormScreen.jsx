@@ -127,6 +127,7 @@ export const MealFormScreen = () => {
               value={formData.name}
               onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
               placeholder="Enter meal name"
+              placeholderTextColor={'#606060ff'}
             />
 
             <Text style={styles.label}>Description</Text>
@@ -135,6 +136,7 @@ export const MealFormScreen = () => {
               value={formData.description}
               onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
               placeholder="Describe your meal"
+              placeholderTextColor={'#606060ff'}
               multiline
               numberOfLines={3}
             />
@@ -151,8 +153,8 @@ export const MealFormScreen = () => {
                 height= {50}
                 labelField="label"
                 valueField="value"
-                placeholder={!isFocus ? '':'...'}
-                placeholderTextColor='#eeeeee'
+                placeholder={!isFocus ? '' : '...'}
+                placeholderTextColor='white'
                 searchPlaceholder="Search..."
                 value={formData.meal_time}
                 onFocus={() => setIsFocus(true)}
@@ -179,6 +181,7 @@ export const MealFormScreen = () => {
                 value={ingredientInput}
                 onChangeText={setIngredientInput}
                 placeholder="Add ingredient"
+                placeholderTextColor={'#606060ff'}
               />
               <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
                 <Text style={styles.addButtonText}>Add</Text>
@@ -229,7 +232,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    backgroundColor: '#444444',
+    backgroundColor: '#2c2c2c',
     borderRadius: 8,
     padding: 20,
   },

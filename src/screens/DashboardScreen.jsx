@@ -14,13 +14,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
+const COLORS = {
+  background_color: '#111111',
+  textcolor: '#00e6ff',
+  whitetext: '#eeeeee',
+  container: '#2c2c2c',
+  themepurple: '#3d1bf9ff'
+}
 export const DashboardScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
   const [meals, setMeals] = useState([]);
   const [symptoms, setSymptoms] = useState([]);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     loadTodayData();
   }, []);
@@ -133,7 +139,7 @@ export const DashboardScreen = () => {
           </LinearGradient>
         </View>
         {/* Quick Actions */}
-        <View style={styles.Quick}>
+        <View style={styles.containerSection}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Quick Actions</Text>
             <View style={styles.quickActions}>
@@ -141,14 +147,14 @@ export const DashboardScreen = () => {
                 style={styles.actionButton}
                 onPress={() => navigation.navigate('MealForm', {})}
               >
-                <Ionicons name="restaurant" size={24} color="white" />
+                <Ionicons name="restaurant" size={24} color={COLORS.textcolor} />
                 <Text style={styles.actionButtonText}>Log Meal</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => navigation.navigate('SymptomForm', {})}
               >
-                <Ionicons name="medical" size={24} color="white" />
+                <Ionicons name="medical" size={24} color={COLORS.textcolor} />
                 <Text style={styles.actionButtonText}>Log Symptom</Text>
               </TouchableOpacity>
             </View>
@@ -156,48 +162,54 @@ export const DashboardScreen = () => {
         </View>
 
         {/* Quick Symptom Logging */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Symptom Log</Text>
-          <View style={styles.quickSymptoms}>
-            <TouchableOpacity
-              style={[styles.symptomButton, { backgroundColor: '#4caf50' }]}
-              onPress={() => quickLogSymptom('Nausea', 3)}
-            >
-              <Text style={styles.symptomButtonText}>Nausea</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.symptomButton, { backgroundColor: '#ff9800' }]}
-              onPress={() => quickLogSymptom('Headache', 5)}
-            >
-              <Text style={styles.symptomButtonText}>Headache</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.symptomButton, { backgroundColor: '#f44336' }]}
-              onPress={() => quickLogSymptom('Stomach Pain', 6)}
-            >
-              <Text style={styles.symptomButtonText}>Stomach Pain</Text>
-            </TouchableOpacity>
+        <View style={styles.containerSection}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Symptom Log</Text>
+            <View style={styles.quickSymptoms}>
+              <TouchableOpacity
+                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                onPress={() => quickLogSymptom('Nausea', 3)}
+              >
+                <Text style={styles.symptomButtonText}>Nausea</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                onPress={() => quickLogSymptom('Headache', 5)}
+              >
+                <Text style={styles.symptomButtonText}>Headache</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                onPress={() => quickLogSymptom('Stomach Pain', 6)}
+              >
+                <Text style={styles.symptomButtonText}>Stomachache</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
         {/* Today's Meals */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Meals ({meals.length})</Text>
-          {meals.length === 0 ? (
-            <Text style={styles.emptyText}>No meals logged today</Text>
-          ) : (
-            meals.map(renderMealCard)
-          )}
+        <View style={styles.containerSection}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Today's Meals ({meals.length})</Text>
+            {meals.length === 0 ? (
+              <Text style={styles.emptyText}>No meals logged today</Text>
+            ) : (
+              meals.map(renderMealCard)
+            )}
+          </View>
         </View>
 
         {/* Today's Symptoms */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Symptoms ({symptoms.length})</Text>
-          {symptoms.length === 0 ? (
-            <Text style={styles.emptyText}>No symptoms logged today</Text>
-          ) : (
-            symptoms.map(renderSymptomCard)
-          )}
+        <View style={styles.containerSection}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Today's Symptoms ({symptoms.length})</Text>
+            {symptoms.length === 0 ? (
+              <Text style={styles.emptyText}>No symptoms logged today</Text>
+            ) : (
+              symptoms.map(renderSymptomCard)
+            )}
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -234,13 +246,19 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
   },
+  containerSection: {
+    backgroundColor: '#2c2c2c',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
   section: {
-    marginBottom: 24,
+    marginBottom: 0,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#eeeeee',
     marginBottom: 12,
   },
   quickActions: {
@@ -248,7 +266,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   actionButton: {
-    backgroundColor: '#2e7d32',
+    backgroundColor: '#111111',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -257,7 +275,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionButtonText: {
-    color: 'white',
+    color: '#00e6ff',
     fontWeight: 'bold',
     marginLeft: 8,
   },
@@ -269,15 +287,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     alignItems: 'center',
-    flex: 0.32,
+    flex: 0.33,
+    justifyContent: 'center'
   },
   symptomButtonText: {
-    color: 'white',
+    color: '#00e6ff',
     fontWeight: 'bold',
     fontSize: 12,
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.background_color,
     borderRadius: 8,
     padding: 16,
     marginBottom: 8,
@@ -296,27 +315,27 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.textcolor,
   },
   mealTime: {
     fontSize: 12,
-    color: '#666',
-    backgroundColor: '#e8f5e8',
+    color: COLORS.textcolor,
+    backgroundColor: COLORS.container,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
   },
   cardDescription: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.whitetext,
     marginBottom: 4,
   },
   ingredients: {
     fontSize: 12,
-    color: '#999',
+    color: COLORS.whitetext,
   },
   severityContainer: {
-    backgroundColor: '#fff3e0',
+    backgroundColor: COLORS.container,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -328,11 +347,11 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 12,
-    color: '#999',
+    color: COLORS.whitetext,
   },
   emptyText: {
     fontSize: 14,
-    color: '#999',
+    color: COLORS.whitetext,
     textAlign: 'center',
     fontStyle: 'italic',
   },
