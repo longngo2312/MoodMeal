@@ -15,7 +15,13 @@ import {Dropdown} from 'react-native-element-dropdown'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-
+const COLORS = {
+  background_color: '#111111',
+  textcolor: '#00e6ff',
+  whitetext: '#eeeeee',
+  container: '#2c2c2c',
+  themepurple: '#3d1bf9ff'
+}
 export const MealFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -282,10 +288,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addButton: {
-    backgroundColor: '#2c2c2c',
+    backgroundColor: COLORS.background_color,
     borderRadius: 8,
     padding: 12,
     marginLeft: 8,
+    marginTop: -16,
   },
   addButtonText: {
     color: '#00e6ff',
