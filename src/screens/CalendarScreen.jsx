@@ -11,7 +11,13 @@ import { Calendar } from 'react-native-calendars';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-
+const COLORS = {
+  background_color: '#111111',
+  textcolor: '#00e6ff',
+  whitetext: '#eeeeee',
+  container: '#2c2c2c',
+  themepurple: '#3d1bf9ff'
+}
 export const CalendarScreen = () => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(
@@ -107,7 +113,7 @@ export const CalendarScreen = () => {
       marked[selectedDate] = {
         ...marked[selectedDate],
         selected: true,
-        selectedColor: '#4037dfff',
+        selectedColor: COLORS.textcolor,
       };
 
       setMonthlyData(dataByDate);
@@ -140,7 +146,7 @@ export const CalendarScreen = () => {
     newMarked[day.dateString] = {
       ...newMarked[day.dateString],
       selected: true,
-      selectedColor: '#4037dfff',
+      selectedColor: COLORS.textcolor,
     };
     
     setMarkedDates(newMarked);
@@ -185,19 +191,20 @@ export const CalendarScreen = () => {
           markedDates={markedDates}
           theme={{
             backgroundColor: '#ffffff',
-            calendarBackground: '#ffffff',
-            textSectionTitleColor: '#b6c1cd',
+            calendarBackground: COLORS.container,
+            borderRadius: 8,
+            textSectionTitleColor: COLORS.whitetext,
             selectedDayBackgroundColor: '#4037dfff',
-            selectedDayTextColor: '#ffffff',
-            todayTextColor: '#4037dfff',
-            dayTextColor: '#2d4150',
+            selectedDayTextColor: '#000000ff',
+            todayTextColor: COLORS.whitetext,
+            dayTextColor: COLORS.whitetext,
             textDisabledColor: '#d9e1e8',
             dotColor: '#00adf5',
             selectedDotColor: '#ffffff',
-            arrowColor: '#4037dfff',
+            arrowColor: COLORS.textcolor,
             disabledArrowColor: '#d9e1e8',
-            monthTextColor: '#4037dfff',
-            indicatorColor: '#4037dfff',
+            monthTextColor: COLORS.textcolor,
+            indicatorColor: COLORS.whitetext,
             textDayFontWeight: '300',
             textMonthFontWeight: 'bold',
             textDayHeaderFontWeight: '300',
@@ -265,13 +272,13 @@ export const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background_color,
   },
   content: {
     padding: 16,
   },
   legend: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.container,
     borderRadius: 8,
     padding: 16,
     marginVertical: 16,
@@ -280,6 +287,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: COLORS.whitetext,
   },
   legendItems: {
     flexDirection: 'row',
@@ -297,17 +305,17 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#666',
+    color: COLORS.whitetext,
   },
   dayDetails: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.container,
     borderRadius: 8,
     padding: 16,
   },
   dayTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#3b48aeff',
+    color: COLORS.whitetext,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -317,11 +325,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.whitetext,
     marginBottom: 8,
   },
   card: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: COLORS.background_color,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
@@ -335,7 +343,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.whitetext,
   },
   cardDescription: {
     fontSize: 12,
@@ -366,7 +374,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#999',
+    color: '#666',
     textAlign: 'center',
     fontStyle: 'italic',
     marginTop: 20,

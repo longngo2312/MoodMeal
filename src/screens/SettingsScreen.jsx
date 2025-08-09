@@ -16,7 +16,13 @@ import * as Sharing from 'expo-sharing';
 
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../services/supabase';
-
+const COLORS = {
+  background_color: '#111111',
+  textcolor: '#00e6ff',
+  whitetext: '#eeeeee',
+  container: '#2c2c2c',
+  themepurple: '#3d1bf9ff'
+}
 export const SettingsScreen = () => {
   const navigation = useNavigation();
   const { user, signOut } = useAuth();
@@ -194,7 +200,7 @@ export const SettingsScreen = () => {
             onPress={() => navigation.navigate('Profile')}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="person-outline" size={24} color="#2e7d32" />
+              <Ionicons name="person-outline" size={24} color={COLORS.textcolor} />
               <Text style={styles.settingText}>Edit Profile</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
@@ -205,7 +211,7 @@ export const SettingsScreen = () => {
             onPress={() => setShowPasswordModal(true)}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="lock-closed-outline" size={24} color="#2e7d32" />
+              <Ionicons name="lock-closed-outline" size={24} color={COLORS.textcolor} />
               <Text style={styles.settingText}>Change Password</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
@@ -221,7 +227,7 @@ export const SettingsScreen = () => {
             disabled={loading}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="document-text-outline" size={24} color="#2e7d32" />
+              <Ionicons name="document-text-outline" size={24} color={COLORS.textcolor} />
               <Text style={styles.settingText}>
                 {loading ? 'Generating PDF...' : 'Export Data as PDF'}
               </Text>
@@ -304,13 +310,13 @@ export const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background_color  ,
   },
   content: {
     padding: 16,
   },
   section: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.container,
     borderRadius: 8,
     marginBottom: 16,
     overflow: 'hidden',
@@ -318,9 +324,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.whitetext,
     padding: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: COLORS.container,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -338,8 +344,10 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.textcolor,
     marginLeft: 12,
+    fontWeight: 'bold'
+
   },
   footer: {
     alignItems: 'center',
