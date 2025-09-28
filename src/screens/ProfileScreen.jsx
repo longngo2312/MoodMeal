@@ -97,7 +97,8 @@ export const ProfileScreen = () => {
           gender: profile.gender,
           medical_history: profile.medical_history,
           updated_at: new Date().toISOString(),
-        });
+        })
+        .eq('user_id', user.id); // Defensive: ensure only one profile per user
 
       if (error) throw error;
 
