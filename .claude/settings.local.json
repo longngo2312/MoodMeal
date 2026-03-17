@@ -14,7 +14,9 @@
       "Bash(mv src/screens/SettingsScreen.tsx src/screens/settings/)",
       "Bash(for f:*)",
       "Bash(do sed:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(npx prisma:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

@@ -1,3 +1,4 @@
+export { api, getToken, setToken, removeToken } from './api';
 export { authService } from './authService';
 export { profileService } from './profileService';
 export { mealService } from './mealService';

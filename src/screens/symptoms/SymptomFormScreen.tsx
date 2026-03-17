@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../services/supabase';
+import { symptomService } from '../../services/symptomService';
 import { RootStackParamList, SymptomFormData } from '../../types';
 
 const COLORS = {
@@ -65,29 +65,11 @@ export const SymptomFormScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      const symptomData = {
-        user_id: user!.id,
-        symptom_type: formData.symptom_type,
-        severity: formData.severity,
-        description: formData.description,
-        date: formData.date,
-        time: formData.time,
-      };
-
       if (route.params?.symptom && route.params.symptom.id) {
-        const { error } = await supabase
-          .from('symptoms')
-          .update(symptomData)
-          .eq('id', route.params.symptom.id);
-
-        if (error) throw error;
+        await symptomService.updateSymptom(route.params.symptom.id, user!.id, formData);
         Alert.alert('Success', 'Symptom updated successfully!');
       } else {
-        const { error } = await supabase
-          .from('symptoms')
-          .insert([symptomData]);
-
-        if (error) throw error;
+        await symptomService.createSymptom(user!.id, formData);
         Alert.alert('Success', 'Symptom logged successfully!');
       }
 

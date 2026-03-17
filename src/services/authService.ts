@@ -1,37 +1,41 @@
-import { supabase } from './supabase';
-import { isNetworkError } from '../utils/networkUtils';
+import { api, setToken, removeToken } from './api';
+
+interface AuthResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    created_at: string;
+  };
+}
 
 export const authService = {
-  async signIn(email: string, password: string): Promise<void> {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (isNetworkError(error)) {
-        throw new Error('Network connection lost. Please check your internet connection and try again.');
-      }
-      throw error;
-    }
+  async signIn(email: string, password: string): Promise<AuthResponse> {
+    const { data, error } = await api.post<AuthResponse>('/auth/login', { email, password });
+    if (error) throw new Error(error);
+    await setToken(data!.token);
+    return data!;
   },
 
-  async signUp(email: string, password: string): Promise<void> {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+  async signUp(email: string, password: string): Promise<AuthResponse> {
+    const { data, error } = await api.post<AuthResponse>('/auth/register', { email, password });
+    if (error) throw new Error(error);
+    await setToken(data!.token);
+    return data!;
   },
 
   async signOut(): Promise<void> {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await removeToken();
   },
 
   async updatePassword(newPassword: string): Promise<void> {
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) throw error;
+    const { error } = await api.put('/auth/password', { password: newPassword });
+    if (error) throw new Error(error);
   },
 
-  async getSession() {
-    return supabase.auth.getSession();
-  },
-
-  onAuthStateChange(callback: Parameters<typeof supabase.auth.onAuthStateChange>[0]) {
-    return supabase.auth.onAuthStateChange(callback);
+  async getMe(): Promise<AuthResponse['user'] | null> {
+    const { data, error } = await api.get<AuthResponse['user']>('/auth/me');
+    if (error) return null;
+    return data!;
   },
 };

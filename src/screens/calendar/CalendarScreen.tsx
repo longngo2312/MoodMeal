@@ -9,7 +9,8 @@ import {
 import { Calendar, DateData } from 'react-native-calendars';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../services/supabase';
+import { mealService } from '../../services/mealService';
+import { symptomService } from '../../services/symptomService';
 import { Meal, Symptom, DayData } from '../../types';
 
 const COLORS = {
@@ -52,37 +53,22 @@ export const CalendarScreen: React.FC = () => {
       const startDate = firstDay.toISOString().split('T')[0];
       const endDate = lastDay.toISOString().split('T')[0];
 
-      const { data: symptomsData, error: symptomsError } = await supabase
-        .from('symptoms')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date', { ascending: true });
-
-      if (symptomsError) throw symptomsError;
-
-      const { data: mealsData, error: mealsError } = await supabase
-        .from('meals')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date', { ascending: true });
-
-      if (mealsError) throw mealsError;
+      const [symptomsData, mealsData] = await Promise.all([
+        symptomService.getSymptomsByDateRange(user.id, startDate, endDate),
+        mealService.getMealsByDateRange(user.id, startDate, endDate),
+      ]);
 
       const dataByDate: Record<string, DayData> = {};
       const marked: Record<string, MarkedDate> = {};
 
-      ((symptomsData as Symptom[]) || []).forEach(symptom => {
+      (symptomsData || []).forEach(symptom => {
         if (!dataByDate[symptom.date]) {
           dataByDate[symptom.date] = { symptoms: [], meals: [], moods: [] };
         }
         dataByDate[symptom.date].symptoms.push(symptom);
       });
 
-      ((mealsData as Meal[]) || []).forEach(meal => {
+      (mealsData || []).forEach(meal => {
         if (!dataByDate[meal.date]) {
           dataByDate[meal.date] = { symptoms: [], meals: [], moods: [] };
         }

@@ -1,66 +1,37 @@
-import { supabase } from './supabase';
+import { api } from './api';
 import { Meal, MealFormData } from '../types';
 
 export const mealService = {
-  async getMealsByDate(userId: string, date: string): Promise<Meal[]> {
-    const { data, error } = await supabase
-      .from('meals')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('date', date)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data as Meal[]) || [];
+  async getMealsByDate(_userId: string, date: string): Promise<Meal[]> {
+    const { data, error } = await api.get<Meal[]>(`/meals?date=${date}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async getMealsByDateRange(userId: string, startDate: string, endDate: string): Promise<Meal[]> {
-    const { data, error } = await supabase
-      .from('meals')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .order('date', { ascending: true });
-
-    if (error) throw error;
-    return (data as Meal[]) || [];
+  async getMealsByDateRange(_userId: string, startDate: string, endDate: string): Promise<Meal[]> {
+    const { data, error } = await api.get<Meal[]>(`/meals?start_date=${startDate}&end_date=${endDate}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async getAllMeals(userId: string): Promise<Meal[]> {
-    const { data, error } = await supabase
-      .from('meals')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false });
-
-    if (error) throw error;
-    return (data as Meal[]) || [];
+  async getAllMeals(_userId: string): Promise<Meal[]> {
+    const { data, error } = await api.get<Meal[]>('/meals');
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async createMeal(userId: string, mealData: MealFormData): Promise<void> {
-    const { error } = await supabase
-      .from('meals')
-      .insert([{ user_id: userId, ...mealData }]);
-
-    if (error) throw error;
+  async createMeal(_userId: string, mealData: MealFormData): Promise<void> {
+    const { error } = await api.post('/meals', mealData);
+    if (error) throw new Error(error);
   },
 
-  async updateMeal(mealId: string, userId: string, mealData: MealFormData): Promise<void> {
-    const { error } = await supabase
-      .from('meals')
-      .update({ user_id: userId, ...mealData })
-      .eq('id', mealId);
-
-    if (error) throw error;
+  async updateMeal(mealId: string, _userId: string, mealData: MealFormData): Promise<void> {
+    const { error } = await api.put(`/meals/${mealId}`, mealData);
+    if (error) throw new Error(error);
   },
 
   async deleteMeal(mealId: string): Promise<void> {
-    const { error } = await supabase
-      .from('meals')
-      .delete()
-      .eq('id', mealId);
-
-    if (error) throw error;
+    const { error } = await api.delete(`/meals/${mealId}`);
+    if (error) throw new Error(error);
   },
 };

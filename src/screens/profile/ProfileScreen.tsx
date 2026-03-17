@@ -14,7 +14,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../services/supabase';
+import { profileService } from '../../services/profileService';
 import { ProfileFormData } from '../../types';
 
 const COLORS = {
@@ -51,15 +51,7 @@ export const ProfileScreen: React.FC = () => {
 
   const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user!.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      const data = await profileService.getProfile(user!.id);
 
       if (data) {
         setProfile({
@@ -99,19 +91,7 @@ export const ProfileScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          user_id: user!.id,
-          name: profile.name,
-          age: profile.age,
-          gender: profile.gender,
-          medical_history: profile.medical_history,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user!.id);
-
-      if (error) throw error;
+      await profileService.upsertProfile(user!.id, profile);
 
       Alert.alert('Success', 'Profile saved successfully!');
     } catch (error: any) {

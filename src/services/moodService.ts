@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { api } from './api';
 import { Mood } from '../types';
 
 export interface MoodFormData {
@@ -12,54 +12,30 @@ export interface MoodFormData {
 }
 
 export const moodService = {
-  async getMoodsByDate(userId: string, date: string): Promise<Mood[]> {
-    const { data, error } = await supabase
-      .from('moods')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('date', date)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data as Mood[]) || [];
+  async getMoodsByDate(_userId: string, date: string): Promise<Mood[]> {
+    const { data, error } = await api.get<Mood[]>(`/moods?date=${date}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async getMoodsByDateRange(userId: string, startDate: string, endDate: string): Promise<Mood[]> {
-    const { data, error } = await supabase
-      .from('moods')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .order('date', { ascending: true });
-
-    if (error) throw error;
-    return (data as Mood[]) || [];
+  async getMoodsByDateRange(_userId: string, startDate: string, endDate: string): Promise<Mood[]> {
+    const { data, error } = await api.get<Mood[]>(`/moods?start_date=${startDate}&end_date=${endDate}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async createMood(userId: string, moodData: MoodFormData): Promise<void> {
-    const { error } = await supabase
-      .from('moods')
-      .insert([{ user_id: userId, ...moodData }]);
-
-    if (error) throw error;
+  async createMood(_userId: string, moodData: MoodFormData): Promise<void> {
+    const { error } = await api.post('/moods', moodData);
+    if (error) throw new Error(error);
   },
 
-  async updateMood(moodId: string, userId: string, moodData: MoodFormData): Promise<void> {
-    const { error } = await supabase
-      .from('moods')
-      .update({ user_id: userId, ...moodData })
-      .eq('id', moodId);
-
-    if (error) throw error;
+  async updateMood(moodId: string, _userId: string, moodData: MoodFormData): Promise<void> {
+    const { error } = await api.put(`/moods/${moodId}`, moodData);
+    if (error) throw new Error(error);
   },
 
   async deleteMood(moodId: string): Promise<void> {
-    const { error } = await supabase
-      .from('moods')
-      .delete()
-      .eq('id', moodId);
-
-    if (error) throw error;
+    const { error } = await api.delete(`/moods/${moodId}`);
+    if (error) throw new Error(error);
   },
 };

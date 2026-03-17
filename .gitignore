@@ -51,5 +51,10 @@ coverage/
 .expo/*
 babel.config.js.cache
 
+# Backend
+backend/dist/
+backend/*.db
+backend/*.db-journal
+
 # GitHub artifacts
 *.tgz

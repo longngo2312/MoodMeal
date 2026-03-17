@@ -14,7 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../services/supabase';
+import { mealService } from '../../services/mealService';
+import { symptomService } from '../../services/symptomService';
 import { Meal, Symptom, RootStackParamList } from '../../types';
 
 const COLORS = {
@@ -45,26 +46,13 @@ export const DashboardScreen: React.FC = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      const { data: mealsData, error: mealsError } = await supabase
-        .from('meals')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('date', today)
-        .order('created_at', { ascending: false });
+      const [mealsData, symptomsData] = await Promise.all([
+        mealService.getMealsByDate(user.id, today),
+        symptomService.getSymptomsByDate(user.id, today),
+      ]);
 
-      if (mealsError) throw mealsError;
-
-      const { data: symptomsData, error: symptomsError } = await supabase
-        .from('symptoms')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('date', today)
-        .order('created_at', { ascending: false });
-
-      if (symptomsError) throw symptomsError;
-
-      setMeals((mealsData as Meal[]) || []);
-      setSymptoms((symptomsData as Symptom[]) || []);
+      setMeals(mealsData);
+      setSymptoms(symptomsData);
     } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {

@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../services/supabase';
+import { mealService } from '../../services/mealService';
 import { RootStackParamList, MealFormData } from '../../types';
 
 const COLORS = {
@@ -92,29 +92,11 @@ export const MealFormScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      const mealData = {
-        user_id: user!.id,
-        name: formData.name,
-        description: formData.description,
-        ingredients: formData.ingredients,
-        meal_time: formData.meal_time,
-        date: formData.date,
-      };
-
       if (route.params?.meal) {
-        const { error } = await supabase
-          .from('meals')
-          .update(mealData)
-          .eq('id', route.params.meal.id);
-
-        if (error) throw error;
+        await mealService.updateMeal(route.params.meal.id, user!.id, formData);
         Alert.alert('Success', 'Meal updated successfully!');
       } else {
-        const { error } = await supabase
-          .from('meals')
-          .insert([mealData]);
-
-        if (error) throw error;
+        await mealService.createMeal(user!.id, formData);
         Alert.alert('Success', 'Meal logged successfully!');
       }
 

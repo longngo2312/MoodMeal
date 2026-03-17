@@ -1,66 +1,37 @@
-import { supabase } from './supabase';
+import { api } from './api';
 import { Symptom, SymptomFormData } from '../types';
 
 export const symptomService = {
-  async getSymptomsByDate(userId: string, date: string): Promise<Symptom[]> {
-    const { data, error } = await supabase
-      .from('symptoms')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('date', date)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data as Symptom[]) || [];
+  async getSymptomsByDate(_userId: string, date: string): Promise<Symptom[]> {
+    const { data, error } = await api.get<Symptom[]>(`/symptoms?date=${date}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async getSymptomsByDateRange(userId: string, startDate: string, endDate: string): Promise<Symptom[]> {
-    const { data, error } = await supabase
-      .from('symptoms')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .order('date', { ascending: true });
-
-    if (error) throw error;
-    return (data as Symptom[]) || [];
+  async getSymptomsByDateRange(_userId: string, startDate: string, endDate: string): Promise<Symptom[]> {
+    const { data, error } = await api.get<Symptom[]>(`/symptoms?start_date=${startDate}&end_date=${endDate}`);
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async getAllSymptoms(userId: string): Promise<Symptom[]> {
-    const { data, error } = await supabase
-      .from('symptoms')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false });
-
-    if (error) throw error;
-    return (data as Symptom[]) || [];
+  async getAllSymptoms(_userId: string): Promise<Symptom[]> {
+    const { data, error } = await api.get<Symptom[]>('/symptoms');
+    if (error) throw new Error(error);
+    return data || [];
   },
 
-  async createSymptom(userId: string, symptomData: SymptomFormData): Promise<void> {
-    const { error } = await supabase
-      .from('symptoms')
-      .insert([{ user_id: userId, ...symptomData }]);
-
-    if (error) throw error;
+  async createSymptom(_userId: string, symptomData: SymptomFormData): Promise<void> {
+    const { error } = await api.post('/symptoms', symptomData);
+    if (error) throw new Error(error);
   },
 
-  async updateSymptom(symptomId: string, userId: string, symptomData: SymptomFormData): Promise<void> {
-    const { error } = await supabase
-      .from('symptoms')
-      .update({ user_id: userId, ...symptomData })
-      .eq('id', symptomId);
-
-    if (error) throw error;
+  async updateSymptom(symptomId: string, _userId: string, symptomData: SymptomFormData): Promise<void> {
+    const { error } = await api.put(`/symptoms/${symptomId}`, symptomData);
+    if (error) throw new Error(error);
   },
 
   async deleteSymptom(symptomId: string): Promise<void> {
-    const { error } = await supabase
-      .from('symptoms')
-      .delete()
-      .eq('id', symptomId);
-
-    if (error) throw error;
+    const { error } = await api.delete(`/symptoms/${symptomId}`);
+    if (error) throw new Error(error);
   },
 };

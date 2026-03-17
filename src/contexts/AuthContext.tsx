@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '../services/supabase';
-import { isNetworkError } from '../utils/networkUtils';
+import { authService } from '../services/authService';
+import { getToken } from '../services/api';
 import { User, AuthContextType } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,58 +22,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ? {
-        id: session.user.id,
-        email: session.user.email ?? '',
-        created_at: session.user.created_at,
-      } : null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setUser(session?.user ? {
-          id: session.user.id,
-          email: session.user.email ?? '',
-          created_at: session.user.created_at,
-        } : null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    checkAuth();
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<void> => {
+  const checkAuth = async () => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        if (isNetworkError(error)) {
-          throw new Error('Network connection lost. Please check your internet connection and try again.');
-        }
-        throw error;
+      const token = await getToken();
+      if (!token) {
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
+
+      const me = await authService.getMe();
+      if (me) {
+        setUser({ id: me.id, email: me.email, created_at: me.created_at });
+      }
+    } catch {
+      // Token invalid or expired
+    } finally {
+      setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string): Promise<void> => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
+  const signIn = async (email: string, password: string): Promise<void> => {
+    const result = await authService.signIn(email, password);
+    setUser({
+      id: result.user.id,
+      email: result.user.email,
+      created_at: result.user.created_at,
     });
-    if (error) throw error;
+  };
+
+  const signUp = async (email: string, password: string): Promise<void> => {
+    const result = await authService.signUp(email, password);
+    setUser({
+      id: result.user.id,
+      email: result.user.email,
+      created_at: result.user.created_at,
+    });
   };
 
   const signOut = async (): Promise<void> => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await authService.signOut();
+    setUser(null);
   };
 
   const value: AuthContextType = {

@@ -30,10 +30,11 @@ export default {
       favicon: "./assets/favicon.png"
     },
     extra: {
-      // These will be available via Constants.expoConfig.extra
-      supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      apiUrl: process.env.EXPO_PUBLIC_API_URL,
     },
-    scheme: "moodmeal"
+    plugins: [
+      "expo-font"
+    ],
+    scheme: "moodmeal",
   }
 };
