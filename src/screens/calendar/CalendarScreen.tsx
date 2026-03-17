@@ -4,29 +4,36 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, DateData } from 'react-native-calendars';
 
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { Meal, Symptom, DayData } from '../../types';
+
 const COLORS = {
-  background_color: '#111111',
-  textcolor: '#00e6ff',
-  whitetext: '#eeeeee',
-  container: '#2c2c2c',
-  themepurple: '#3d1bf9ff'
+  background: '#111111',
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  surface: '#2c2c2c',
+  primary: '#3d1bf9ff',
+};
+
+interface MarkedDate {
+  marked?: boolean;
+  dotColor?: string;
+  selected?: boolean;
+  selectedColor?: string;
 }
-export const CalendarScreen = () => {
+
+export const CalendarScreen: React.FC = () => {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split('T')[0]
   );
-  /** @type {[Object, Function]} */
-  const [monthlyData, setMonthlyData] = useState({});
-  /** @type {[Object, Function]} */
-  const [markedDates, setMarkedDates] = useState({});
+  const [monthlyData, setMonthlyData] = useState<Record<string, DayData>>({});
+  const [markedDates, setMarkedDates] = useState<Record<string, MarkedDate>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,11 +48,10 @@ export const CalendarScreen = () => {
       const currentDate = new Date();
       const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
       const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      
+
       const startDate = firstDay.toISOString().split('T')[0];
       const endDate = lastDay.toISOString().split('T')[0];
 
-      // Load symptoms for the month
       const { data: symptomsData, error: symptomsError } = await supabase
         .from('symptoms')
         .select('*')
@@ -56,7 +62,6 @@ export const CalendarScreen = () => {
 
       if (symptomsError) throw symptomsError;
 
-      // Load meals for the month
       const { data: mealsData, error: mealsError } = await supabase
         .from('meals')
         .select('*')
@@ -67,39 +72,35 @@ export const CalendarScreen = () => {
 
       if (mealsError) throw mealsError;
 
-      // Organize data by date
-      const dataByDate = {};
-      const marked = {};
+      const dataByDate: Record<string, DayData> = {};
+      const marked: Record<string, MarkedDate> = {};
 
-      // Process symptoms
-      (symptomsData || []).forEach(symptom => {
+      ((symptomsData as Symptom[]) || []).forEach(symptom => {
         if (!dataByDate[symptom.date]) {
-          dataByDate[symptom.date] = { symptoms: [], meals: [] };
+          dataByDate[symptom.date] = { symptoms: [], meals: [], moods: [] };
         }
         dataByDate[symptom.date].symptoms.push(symptom);
       });
 
-      // Process meals
-      (mealsData || []).forEach(meal => {
+      ((mealsData as Meal[]) || []).forEach(meal => {
         if (!dataByDate[meal.date]) {
-          dataByDate[meal.date] = { symptoms: [], meals: [] };
+          dataByDate[meal.date] = { symptoms: [], meals: [], moods: [] };
         }
         dataByDate[meal.date].meals.push(meal);
       });
 
-      // Create marked dates for calendar
       Object.keys(dataByDate).forEach(date => {
         const dayData = dataByDate[date];
         const hasSymptoms = dayData.symptoms.length > 0;
         const hasMeals = dayData.meals.length > 0;
-        
+
         let color = '#e0e0e0';
         if (hasSymptoms && hasMeals) {
-          color = '#ff9800'; // Orange for both
+          color = '#ff9800';
         } else if (hasSymptoms) {
-          color = '#f44336'; // Red for symptoms
+          color = '#f44336';
         } else if (hasMeals) {
-          color = '#4caf50'; // Green for meals
+          color = '#4caf50';
         }
 
         marked[date] = {
@@ -109,29 +110,26 @@ export const CalendarScreen = () => {
         };
       });
 
-      // Mark selected date
       marked[selectedDate] = {
         ...marked[selectedDate],
         selected: true,
-        selectedColor: COLORS.textcolor,
+        selectedColor: COLORS.accent,
       };
 
       setMonthlyData(dataByDate);
       setMarkedDates(marked);
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const onDayPress = (day) => {
+  const onDayPress = (day: DateData) => {
     setSelectedDate(day.dateString);
-    
-    // Update marked dates to show new selection
+
     const newMarked = { ...markedDates };
-    
-    // Remove previous selection
+
     Object.keys(newMarked).forEach(date => {
       if (newMarked[date].selected) {
         newMarked[date] = {
@@ -141,18 +139,23 @@ export const CalendarScreen = () => {
         };
       }
     });
-    
-    // Add new selection
+
     newMarked[day.dateString] = {
       ...newMarked[day.dateString],
       selected: true,
-      selectedColor: COLORS.textcolor,
+      selectedColor: COLORS.accent,
     };
-    
+
     setMarkedDates(newMarked);
   };
 
-  const renderSymptomCard = (symptom) => (
+  const getSeverityColor = (severity: number): string => {
+    if (severity <= 3) return '#4caf50';
+    if (severity <= 6) return '#ff9800';
+    return '#f44336';
+  };
+
+  const renderSymptomCard = (symptom: Symptom) => (
     <View key={symptom.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{symptom.symptom_type}</Text>
@@ -165,7 +168,7 @@ export const CalendarScreen = () => {
     </View>
   );
 
-  const renderMealCard = (meal) => (
+  const renderMealCard = (meal: Meal) => (
     <View key={meal.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{meal.name}</Text>
@@ -175,13 +178,7 @@ export const CalendarScreen = () => {
     </View>
   );
 
-  const getSeverityColor = (severity) => {
-    if (severity <= 3) return '#4caf50';
-    if (severity <= 6) return '#ff9800';
-    return '#f44336';
-  };
-
-  const selectedDayData = monthlyData[selectedDate] || { symptoms: [], meals: [] };
+  const selectedDayData = monthlyData[selectedDate] || { symptoms: [], meals: [], moods: [] };
 
   return (
     <ScrollView style={styles.container}>
@@ -191,20 +188,19 @@ export const CalendarScreen = () => {
           markedDates={markedDates}
           theme={{
             backgroundColor: '#ffffff',
-            calendarBackground: COLORS.container,
-            borderRadius: 8,
-            textSectionTitleColor: COLORS.whitetext,
+            calendarBackground: COLORS.surface,
+            textSectionTitleColor: COLORS.text,
             selectedDayBackgroundColor: '#4037dfff',
             selectedDayTextColor: '#000000ff',
-            todayTextColor: COLORS.whitetext,
-            dayTextColor: COLORS.whitetext,
+            todayTextColor: COLORS.text,
+            dayTextColor: COLORS.text,
             textDisabledColor: '#d9e1e8',
             dotColor: '#00adf5',
             selectedDotColor: '#ffffff',
-            arrowColor: COLORS.textcolor,
+            arrowColor: COLORS.accent,
             disabledArrowColor: '#d9e1e8',
-            monthTextColor: COLORS.textcolor,
-            indicatorColor: COLORS.whitetext,
+            monthTextColor: COLORS.accent,
+            indicatorColor: COLORS.text,
             textDayFontWeight: '300',
             textMonthFontWeight: 'bold',
             textDayHeaderFontWeight: '300',
@@ -272,13 +268,13 @@ export const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background_color,
+    backgroundColor: COLORS.background,
   },
   content: {
     padding: 16,
   },
   legend: {
-    backgroundColor: COLORS.container,
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 16,
     marginVertical: 16,
@@ -287,7 +283,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: COLORS.whitetext,
+    color: COLORS.text,
   },
   legendItems: {
     flexDirection: 'row',
@@ -305,17 +301,17 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: COLORS.whitetext,
+    color: COLORS.text,
   },
   dayDetails: {
-    backgroundColor: COLORS.container,
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 16,
   },
   dayTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.whitetext,
+    color: COLORS.text,
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -325,11 +321,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.whitetext,
+    color: COLORS.text,
     marginBottom: 8,
   },
   card: {
-    backgroundColor: COLORS.background_color,
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
@@ -343,7 +339,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: COLORS.whitetext,
+    color: COLORS.text,
   },
   cardDescription: {
     fontSize: 12,

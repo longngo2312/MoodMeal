@@ -11,26 +11,37 @@ import {
   Platform,
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
+import { LinearGradient } from 'expo-linear-gradient';
 
-export const ProfileScreen = () => {
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { ProfileFormData } from '../../types';
+
+const COLORS = {
+  background: '#111111',
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  surface: '#2c2c2c',
+  primary: '#3d1bf9ff',
+};
+
+const genderData = [
+  { label: 'Male', value: 'Male' },
+  { label: 'Female', value: 'Female' },
+  { label: 'Others', value: 'Others' },
+];
+
+export const ProfileScreen: React.FC = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [isFocus, setIsFocus] = useState(false); // added focus state for dropdown
-  const [profile, setProfile] = useState({
+  const [isFocus, setIsFocus] = useState(false);
+  const [profile, setProfile] = useState<ProfileFormData>({
     name: '',
     age: 0,
-    gender: 'other',
+    gender: 'Others',
     medical_history: [],
   });
   const [medicalHistoryInput, setMedicalHistoryInput] = useState('');
-
-  const genderData = [
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-    { label: 'Others', value: 'Others' },
-  ];
 
   useEffect(() => {
     if (user) {
@@ -43,7 +54,7 @@ export const ProfileScreen = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user!.id)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -58,7 +69,7 @@ export const ProfileScreen = () => {
           medical_history: data.medical_history || [],
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     }
   };
@@ -73,7 +84,7 @@ export const ProfileScreen = () => {
     }
   };
 
-  const removeMedicalHistory = (index) => {
+  const removeMedicalHistory = (index: number) => {
     setProfile(prev => ({
       ...prev,
       medical_history: prev.medical_history.filter((_, i) => i !== index),
@@ -91,19 +102,19 @@ export const ProfileScreen = () => {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          user_id: user.id,
+          user_id: user!.id,
           name: profile.name,
           age: profile.age,
           gender: profile.gender,
           medical_history: profile.medical_history,
           updated_at: new Date().toISOString(),
         })
-        .eq('user_id', user.id); // Defensive: ensure only one profile per user
+        .eq('user_id', user!.id);
 
       if (error) throw error;
 
       Alert.alert('Success', 'Profile saved successfully!');
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -126,6 +137,7 @@ export const ProfileScreen = () => {
               value={profile.name}
               onChangeText={(text) => setProfile(prev => ({ ...prev, name: text }))}
               placeholder="Enter your name"
+              placeholderTextColor="#606060ff"
             />
 
             <Text style={styles.label}>Age *</Text>
@@ -134,20 +146,19 @@ export const ProfileScreen = () => {
               value={profile.age.toString()}
               onChangeText={(text) => setProfile(prev => ({ ...prev, age: parseInt(text) || 0 }))}
               placeholder="Enter your age"
+              placeholderTextColor="#606060ff"
               keyboardType="numeric"
             />
 
             <Text style={styles.label}>Gender</Text>
             <View style={styles.pickerContainer}>
               <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'green' }]}
+                style={[styles.dropdown, isFocus && { borderColor: COLORS.accent }]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
                 iconStyle={styles.iconStyle}
                 data={genderData}
                 search
-                height={50}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? 'Select gender' : '...'}
@@ -165,10 +176,11 @@ export const ProfileScreen = () => {
             <Text style={styles.label}>Medical History</Text>
             <View style={styles.medicalHistoryContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { flex: 1 }]}
                 value={medicalHistoryInput}
                 onChangeText={setMedicalHistoryInput}
                 placeholder="Add allergies, conditions, etc."
+                placeholderTextColor="#606060ff"
               />
               <TouchableOpacity style={styles.addButton} onPress={addMedicalHistory}>
                 <Text style={styles.addButtonText}>Add</Text>
@@ -189,9 +201,16 @@ export const ProfileScreen = () => {
               onPress={saveProfile}
               disabled={loading}
             >
-              <Text style={styles.saveButtonText}>
-                {loading ? 'Saving...' : 'Save Profile'}
-              </Text>
+              <LinearGradient
+                style={styles.linearGradient}
+                colors={['#3d1bf9ff', '#826ef5ff']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+              >
+                <Text style={styles.saveButtonText}>
+                  {loading ? 'Saving...' : 'Save Profile'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -203,7 +222,7 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -214,38 +233,38 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2e7d32',
+    color: COLORS.accent,
     marginBottom: 20,
     textAlign: 'center',
   },
   form: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#555',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
-    flex: 1,
+    color: COLORS.text,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#555',
     borderRadius: 8,
     marginBottom: 16,
   },
   dropdown: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 8,
     height: 50,
   },
@@ -255,11 +274,7 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
-    color: '#000',
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+    color: COLORS.text,
   },
   iconStyle: {
     width: 20,
@@ -271,20 +286,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addButton: {
-    backgroundColor: '#2e7d32',
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 12,
     marginLeft: 8,
   },
   addButtonText: {
-    color: 'white',
+    color: COLORS.accent,
     fontWeight: 'bold',
   },
   historyItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: COLORS.background,
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
@@ -292,17 +307,16 @@ const styles = StyleSheet.create({
   historyText: {
     flex: 1,
     fontSize: 14,
+    color: COLORS.text,
   },
   removeText: {
-    color: '#d32f2f',
+    color: '#f44336',
     fontWeight: 'bold',
   },
   saveButton: {
-    backgroundColor: '#2e7d32',
     borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
     marginTop: 20,
+    overflow: 'hidden',
   },
   buttonDisabled: {
     backgroundColor: '#ccc',
@@ -311,5 +325,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  linearGradient: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

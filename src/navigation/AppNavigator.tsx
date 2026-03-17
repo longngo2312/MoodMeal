@@ -5,23 +5,31 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../contexts/AuthContext';
-import { AuthScreen } from '../screens/AuthScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { DashboardScreen } from '../screens/DashboardScreen';
-import { CalendarScreen } from '../screens/CalendarScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
-import { MealFormScreen } from '../screens/MealFormScreen';
-import { SymptomFormScreen } from '../screens/SymptomFormScreen';
+import { AuthScreen } from '../screens/auth/AuthScreen';
+import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { DashboardScreen } from '../screens/dashboard/DashboardScreen';
+import { CalendarScreen } from '../screens/calendar/CalendarScreen';
+import { SettingsScreen } from '../screens/settings/SettingsScreen';
+import { MealFormScreen } from '../screens/meals/MealFormScreen';
+import { SymptomFormScreen } from '../screens/symptoms/SymptomFormScreen';
+import { RootStackParamList, BottomTabParamList } from '../types';
 
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
-const TabNavigator = () => {
+const COLORS = {
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  tabBar: '#444444',
+  header: '#4037dfff',
+};
+
+const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+          let iconName: keyof typeof Ionicons.glyphMap = 'help-outline';
 
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline';
@@ -29,38 +37,36 @@ const TabNavigator = () => {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'settings' : 'settings-outline';
-          } else {
-            iconName = 'help-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#00e6ff',
-        tabBarInactiveTintColor: '#eeeeee',
+        tabBarActiveTintColor: COLORS.accent,
+        tabBarInactiveTintColor: COLORS.text,
         tabBarStyle: {
-          backgroundColor: '#444444',
+          backgroundColor: COLORS.tabBar,
         },
         headerStyle: {
-          backgroundColor: '#4037dfff',
+          backgroundColor: COLORS.header,
         },
         headerTintColor: 'white',
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: 'bold' as const,
         },
       })}
     >
-      <Tab.Screen 
-        name="Dashboard" 
+      <Tab.Screen
+        name="Dashboard"
         component={DashboardScreen}
         options={{ title: 'Dashboard' }}
       />
-      <Tab.Screen 
-        name="Calendar" 
+      <Tab.Screen
+        name="Calendar"
         component={CalendarScreen}
         options={{ title: 'Calendar' }}
       />
-      <Tab.Screen 
-        name="Settings" 
+      <Tab.Screen
+        name="Settings"
         component={SettingsScreen}
         options={{ title: 'Settings' }}
       />
@@ -68,11 +74,11 @@ const TabNavigator = () => {
   );
 };
 
-export const AppNavigator = () => {
+export const AppNavigator: React.FC = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return null; // You can add a loading screen here
+    return null;
   }
 
   return (
@@ -83,35 +89,33 @@ export const AppNavigator = () => {
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
-            {/* profile page */}
-            <Stack.Screen 
-              name="Profile" 
+            <Stack.Screen
+              name="Profile"
               component={ProfileScreen}
               options={{
                 headerShown: true,
                 title: 'Profile',
-                headerStyle: { backgroundColor: '#4037dfff' },
+                headerStyle: { backgroundColor: COLORS.header },
                 headerTintColor: 'white',
               }}
             />
-            
-            <Stack.Screen 
-              name="MealForm" 
+            <Stack.Screen
+              name="MealForm"
               component={MealFormScreen}
               options={{
                 headerShown: true,
                 title: 'Log Meal',
-                headerStyle: { backgroundColor: '#4037dfff' },
+                headerStyle: { backgroundColor: COLORS.header },
                 headerTintColor: 'white',
               }}
             />
-            <Stack.Screen 
-              name="SymptomForm" 
+            <Stack.Screen
+              name="SymptomForm"
               component={SymptomFormScreen}
               options={{
                 headerShown: true,
                 title: 'Log Symptom',
-                headerStyle: { backgroundColor: '#4037dfff' },
+                headerStyle: { backgroundColor: COLORS.header },
                 headerTintColor: 'white',
               }}
             />

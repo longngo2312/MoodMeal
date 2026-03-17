@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,39 +10,48 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import {Dropdown} from 'react-native-element-dropdown'
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { Dropdown } from 'react-native-element-dropdown';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { RootStackParamList, MealFormData } from '../../types';
+
 const COLORS = {
-  background_color: '#111111',
-  textcolor: '#00e6ff',
-  whitetext: '#eeeeee',
-  container: '#2c2c2c',
-  themepurple: '#3d1bf9ff'
-}
-export const MealFormScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
+  background: '#111111',
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  surface: '#2c2c2c',
+  primary: '#3d1bf9ff',
+};
+
+type MealFormRouteProp = RouteProp<RootStackParamList, 'MealForm'>;
+type MealFormNavigationProp = StackNavigationProp<RootStackParamList>;
+
+const mealTimeData = [
+  { label: 'Breakfast', value: 'Breakfast' },
+  { label: 'Lunch', value: 'Lunch' },
+  { label: 'Dinner', value: 'Dinner' },
+  { label: 'Snack', value: 'Snack' },
+];
+
+export const MealFormScreen: React.FC = () => {
+  const navigation = useNavigation<MealFormNavigationProp>();
+  const route = useRoute<MealFormRouteProp>();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const data = [
-    {label: 'Breakfast', value: 'Breakfast'},
-    {label: 'Lunch', value: 'Lunch'},
-    {label: 'Dinner', value: 'Dinner'},
-    {label: 'Snack', value: 'Snack'},
-  ]
   const [isFocus, setIsFocus] = useState(false);
-  
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<MealFormData>({
     name: '',
     description: '',
     ingredients: [],
     meal_time: 'Select Item',
     date: new Date().toISOString().split('T')[0],
   });
-  
+
   const [ingredientInput, setIngredientInput] = useState('');
 
   useEffect(() => {
@@ -68,7 +77,7 @@ export const MealFormScreen = () => {
     }
   };
 
-  const removeIngredient = (index) => {
+  const removeIngredient = (index: number) => {
     setFormData(prev => ({
       ...prev,
       ingredients: prev.ingredients.filter((_, i) => i !== index),
@@ -84,7 +93,7 @@ export const MealFormScreen = () => {
     setLoading(true);
     try {
       const mealData = {
-        user_id: user.id,
+        user_id: user!.id,
         name: formData.name,
         description: formData.description,
         ingredients: formData.ingredients,
@@ -93,26 +102,24 @@ export const MealFormScreen = () => {
       };
 
       if (route.params?.meal) {
-        // Update existing meal
         const { error } = await supabase
           .from('meals')
           .update(mealData)
           .eq('id', route.params.meal.id);
-        
+
         if (error) throw error;
         Alert.alert('Success', 'Meal updated successfully!');
       } else {
-        // Create new meal
         const { error } = await supabase
           .from('meals')
           .insert([mealData]);
-        
+
         if (error) throw error;
         Alert.alert('Success', 'Meal logged successfully!');
       }
 
       navigation.goBack();
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -133,7 +140,7 @@ export const MealFormScreen = () => {
               value={formData.name}
               onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
               placeholder="Enter meal name"
-              placeholderTextColor={'#606060ff'}
+              placeholderTextColor="#606060ff"
             />
 
             <Text style={styles.label}>Description</Text>
@@ -142,7 +149,7 @@ export const MealFormScreen = () => {
               value={formData.description}
               onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
               placeholder="Describe your meal"
-              placeholderTextColor={'#606060ff'}
+              placeholderTextColor="#606060ff"
               multiline
               numberOfLines={3}
             />
@@ -152,15 +159,12 @@ export const MealFormScreen = () => {
               <Dropdown
                 style={[styles.dropdown, isFocus && { borderColor: 'green' }]}
                 selectedTextStyle={styles.selectedTextStyle}
-                searchPlaceholderTextColor='black'
                 iconStyle={styles.iconStyle}
-                data={data}
+                data={mealTimeData}
                 search
-                height= {50}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? '' : '...'}
-                placeholderTextColor='white'
                 searchPlaceholder="Search..."
                 value={formData.meal_time}
                 onFocus={() => setIsFocus(true)}
@@ -169,7 +173,7 @@ export const MealFormScreen = () => {
                   setFormData(prev => ({ ...prev, meal_time: item.value }));
                   setIsFocus(false);
                 }}
-                />
+              />
             </View>
 
             <Text style={styles.label}>Date</Text>
@@ -187,7 +191,7 @@ export const MealFormScreen = () => {
                 value={ingredientInput}
                 onChangeText={setIngredientInput}
                 placeholder="Add ingredient"
-                placeholderTextColor={'#606060ff'}
+                placeholderTextColor="#606060ff"
               />
               <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
                 <Text style={styles.addButtonText}>Add</Text>
@@ -202,17 +206,17 @@ export const MealFormScreen = () => {
                 </TouchableOpacity>
               </View>
             ))}
-            {/* Save Meal Button */}
+
             <TouchableOpacity
               style={[styles.saveButton, loading && styles.buttonDisabled]}
               onPress={saveMeal}
               disabled={loading}
             >
               <LinearGradient
-                style={styles.LinearGradient}
-                colors={['#3d1bf9ff','#826ef5ff']}
-                start={{x:0, y:0.5}}
-                end={{x:1,y:0.5}}
+                style={styles.linearGradient}
+                colors={['#3d1bf9ff', '#826ef5ff']}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
               >
                 <Text style={styles.saveButtonText}>
                   {loading ? 'Saving...' : route.params?.meal ? 'Update Meal' : 'Save Meal'}
@@ -229,7 +233,7 @@ export const MealFormScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -238,14 +242,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   form: {
-    backgroundColor: '#2c2c2c',
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#eeeeee',
+    color: COLORS.text,
     marginBottom: 8,
   },
   input: {
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 16,
-    color: '#eeeeee',
+    color: COLORS.text,
   },
   textArea: {
     height: 80,
@@ -269,16 +273,14 @@ const styles = StyleSheet.create({
     height: 50,
   },
   dropdown: {
-    maxHeight: 350,
-    position: 'right',
-    backgroundColor: 'White',
+    backgroundColor: 'white',
     paddingHorizontal: 8,
     height: 50,
   },
-  selectedTextStyle:{
-    color: '#eeeeee',
-  }, 
-  iconStyle:{
+  selectedTextStyle: {
+    color: COLORS.text,
+  },
+  iconStyle: {
     width: 20,
     height: 20,
   },
@@ -288,14 +290,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addButton: {
-    backgroundColor: COLORS.background_color,
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 12,
     marginLeft: 8,
     marginTop: -16,
   },
   addButtonText: {
-    color: '#00e6ff',
+    color: COLORS.accent,
     fontWeight: 'bold',
   },
   ingredientItem: {
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     overflow: 'hidden',
   },
-  LinearGradient: {
+  linearGradient: {
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',

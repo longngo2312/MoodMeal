@@ -10,23 +10,30 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
+import type { StackNavigationProp } from '@react-navigation/stack';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { Meal, Symptom, RootStackParamList } from '../../types';
+
 const COLORS = {
-  background_color: '#111111',
-  textcolor: '#00e6ff',
-  whitetext: '#eeeeee',
-  container: '#2c2c2c',
-  themepurple: '#3d1bf9ff'
-}
-export const DashboardScreen = () => {
-  const navigation = useNavigation();
+  background: '#111111',
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  surface: '#2c2c2c',
+  primary: '#3d1bf9ff',
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
+
+export const DashboardScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
-  const [meals, setMeals] = useState([]);
-  const [symptoms, setSymptoms] = useState([]);
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [symptoms, setSymptoms] = useState<Symptom[]>([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     loadTodayData();
   }, []);
@@ -38,7 +45,6 @@ export const DashboardScreen = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      // Load today's meals
       const { data: mealsData, error: mealsError } = await supabase
         .from('meals')
         .select('*')
@@ -48,7 +54,6 @@ export const DashboardScreen = () => {
 
       if (mealsError) throw mealsError;
 
-      // Load today's symptoms
       const { data: symptomsData, error: symptomsError } = await supabase
         .from('symptoms')
         .select('*')
@@ -58,16 +63,16 @@ export const DashboardScreen = () => {
 
       if (symptomsError) throw symptomsError;
 
-      setMeals(mealsData || []);
-      setSymptoms(symptomsData || []);
-    } catch (error) {
+      setMeals((mealsData as Meal[]) || []);
+      setSymptoms((symptomsData as Symptom[]) || []);
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const quickLogSymptom = (symptomType, severity) => {
+  const quickLogSymptom = (symptomType: string, severity: number) => {
     const now = new Date();
     const date = now.toISOString().split('T')[0];
     const time = now.toTimeString().split(' ')[0];
@@ -75,7 +80,7 @@ export const DashboardScreen = () => {
     navigation.navigate('SymptomForm', {
       symptom: {
         id: '',
-        user_id: user.id,
+        user_id: user!.id,
         symptom_type: symptomType,
         severity,
         description: '',
@@ -86,7 +91,7 @@ export const DashboardScreen = () => {
     });
   };
 
-  const renderMealCard = (meal) => (
+  const renderMealCard = (meal: Meal) => (
     <View key={meal.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{meal.name}</Text>
@@ -99,7 +104,7 @@ export const DashboardScreen = () => {
     </View>
   );
 
-  const renderSymptomCard = (symptom) => (
+  const renderSymptomCard = (symptom: Symptom) => (
     <View key={symptom.id} style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{symptom.symptom_type}</Text>
@@ -120,12 +125,12 @@ export const DashboardScreen = () => {
       }
     >
       <View style={styles.content}>
-        <View style={styles.WelcomeContainer}>
+        <View style={styles.welcomeContainer}>
           <LinearGradient
-            style={styles.LinearGradient}
-            colors={['#3d1bf9ff','#826ef5ff']}
-            start={{x:0, y:0.5}}
-            end={{x:1,y:0.5}}
+            style={styles.linearGradient}
+            colors={['#3d1bf9ff', '#826ef5ff']}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
           >
             <Text style={styles.welcomeText}>Welcome back!</Text>
             <Text style={styles.dateText}>
@@ -138,6 +143,7 @@ export const DashboardScreen = () => {
             </Text>
           </LinearGradient>
         </View>
+
         {/* Quick Actions */}
         <View style={styles.containerSection}>
           <View style={styles.section}>
@@ -145,16 +151,16 @@ export const DashboardScreen = () => {
             <View style={styles.quickActions}>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => navigation.navigate('MealForm', {})}
+                onPress={() => navigation.navigate('MealForm')}
               >
-                <Ionicons name="restaurant" size={24} color={COLORS.textcolor} />
+                <Ionicons name="restaurant" size={24} color={COLORS.accent} />
                 <Text style={styles.actionButtonText}>Log Meal</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => navigation.navigate('SymptomForm', {})}
+                onPress={() => navigation.navigate('SymptomForm')}
               >
-                <Ionicons name="medical" size={24} color={COLORS.textcolor} />
+                <Ionicons name="medical" size={24} color={COLORS.accent} />
                 <Text style={styles.actionButtonText}>Log Symptom</Text>
               </TouchableOpacity>
             </View>
@@ -167,19 +173,19 @@ export const DashboardScreen = () => {
             <Text style={styles.sectionTitle}>Quick Symptom Log</Text>
             <View style={styles.quickSymptoms}>
               <TouchableOpacity
-                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                style={[styles.symptomButton, { backgroundColor: COLORS.background }]}
                 onPress={() => quickLogSymptom('Nausea', 3)}
               >
                 <Text style={styles.symptomButtonText}>Nausea</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                style={[styles.symptomButton, { backgroundColor: COLORS.background }]}
                 onPress={() => quickLogSymptom('Headache', 5)}
               >
                 <Text style={styles.symptomButtonText}>Headache</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.symptomButton, { backgroundColor: COLORS.background_color }]}
+                style={[styles.symptomButton, { backgroundColor: COLORS.background }]}
                 onPress={() => quickLogSymptom('Stomach Pain', 6)}
               >
                 <Text style={styles.symptomButtonText}>Stomachache</Text>
@@ -219,16 +225,17 @@ export const DashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.background,
   },
-  LinearGradient: {
+  linearGradient: {
     flex: 1,
-    borderRadius: 16, 
-    paddingVertical: 16, 
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
+  welcomeContainer: {},
   content: {
     padding: 16,
   },
@@ -247,7 +254,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   containerSection: {
-    backgroundColor: '#2c2c2c',
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -258,7 +265,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#eeeeee',
+    color: COLORS.text,
     marginBottom: 12,
   },
   quickActions: {
@@ -266,7 +273,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   actionButton: {
-    backgroundColor: '#111111',
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
@@ -275,7 +282,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionButtonText: {
-    color: '#00e6ff',
+    color: COLORS.accent,
     fontWeight: 'bold',
     marginLeft: 8,
   },
@@ -288,15 +295,15 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     flex: 0.33,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   symptomButtonText: {
-    color: '#00e6ff',
+    color: COLORS.accent,
     fontWeight: 'bold',
     fontSize: 12,
   },
   card: {
-    backgroundColor: COLORS.background_color,
+    backgroundColor: COLORS.background,
     borderRadius: 8,
     padding: 16,
     marginBottom: 8,
@@ -315,27 +322,27 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.textcolor,
+    color: COLORS.accent,
   },
   mealTime: {
     fontSize: 12,
-    color: COLORS.textcolor,
-    backgroundColor: COLORS.container,
+    color: COLORS.accent,
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
   },
   cardDescription: {
     fontSize: 14,
-    color: COLORS.whitetext,
+    color: COLORS.text,
     marginBottom: 4,
   },
   ingredients: {
     fontSize: 12,
-    color: COLORS.whitetext,
+    color: COLORS.text,
   },
   severityContainer: {
-    backgroundColor: COLORS.container,
+    backgroundColor: COLORS.surface,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -347,11 +354,11 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 12,
-    color: COLORS.whitetext,
+    color: COLORS.text,
   },
   emptyText: {
     fontSize: 14,
-    color: COLORS.whitetext,
+    color: COLORS.text,
     textAlign: 'center',
     fontStyle: 'italic',
   },

@@ -13,18 +13,24 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../services/supabase';
+import { RootStackParamList } from '../../types';
+
 const COLORS = {
-  background_color: '#111111',
-  textcolor: '#00e6ff',
-  whitetext: '#eeeeee',
-  container: '#2c2c2c',
-  themepurple: '#3d1bf9ff'
-}
-export const SettingsScreen = () => {
-  const navigation = useNavigation();
+  background: '#111111',
+  accent: '#00e6ff',
+  text: '#eeeeee',
+  surface: '#2c2c2c',
+  primary: '#3d1bf9ff',
+};
+
+type SettingsNavigationProp = StackNavigationProp<RootStackParamList>;
+
+export const SettingsScreen: React.FC = () => {
+  const navigation = useNavigation<SettingsNavigationProp>();
   const { user, signOut } = useAuth();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -44,7 +50,7 @@ export const SettingsScreen = () => {
           onPress: async () => {
             try {
               await signOut();
-            } catch (error) {
+            } catch (error: any) {
               Alert.alert('Error', error.message);
             }
           },
@@ -82,7 +88,7 @@ export const SettingsScreen = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -94,35 +100,31 @@ export const SettingsScreen = () => {
 
     setLoading(true);
     try {
-      // Get user's profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      // Get all meals
       const { data: meals } = await supabase
         .from('meals')
         .select('*')
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
-      // Get all symptoms
       const { data: symptoms } = await supabase
         .from('symptoms')
         .select('*')
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
-      // Create HTML content for PDF
       const htmlContent = `
         <html>
           <head>
             <style>
               body { font-family: Arial, sans-serif; margin: 20px; }
-              h1 { color: #2e7d32; text-align: center; }
-              h2 { color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 5px; }
+              h1 { color: #3d1bf9; text-align: center; }
+              h2 { color: #3d1bf9; border-bottom: 2px solid #3d1bf9; padding-bottom: 5px; }
               .profile { background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
               .entry { background-color: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
               .date { font-weight: bold; color: #666; }
@@ -132,7 +134,7 @@ export const SettingsScreen = () => {
           </head>
           <body>
             <h1>MoodMeal Health Report</h1>
-            
+
             <div class="profile">
               <h2>Profile Information</h2>
               <p><strong>Name:</strong> ${profile?.name || 'N/A'}</p>
@@ -142,7 +144,7 @@ export const SettingsScreen = () => {
             </div>
 
             <h2>Meal History (${meals?.length || 0} entries)</h2>
-            ${meals?.map(meal => `
+            ${meals?.map((meal: any) => `
               <div class="entry">
                 <div class="date">${meal.date} - <span class="meal-time">${meal.meal_time}</span></div>
                 <h3>${meal.name}</h3>
@@ -152,7 +154,7 @@ export const SettingsScreen = () => {
             `).join('') || '<p>No meals recorded</p>'}
 
             <h2>Symptom History (${symptoms?.length || 0} entries)</h2>
-            ${symptoms?.map(symptom => `
+            ${symptoms?.map((symptom: any) => `
               <div class="entry">
                 <div class="date">${symptom.date} ${symptom.time}</div>
                 <h3>${symptom.symptom_type} - <span class="severity">Severity: ${symptom.severity}/10</span></h3>
@@ -167,13 +169,11 @@ export const SettingsScreen = () => {
         </html>
       `;
 
-      // Generate PDF
       const { uri } = await Print.printToFileAsync({
         html: htmlContent,
         base64: false,
       });
 
-      // Share the PDF
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, {
           mimeType: 'application/pdf',
@@ -182,7 +182,7 @@ export const SettingsScreen = () => {
       } else {
         Alert.alert('Success', 'PDF generated successfully!');
       }
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
@@ -194,13 +194,13 @@ export const SettingsScreen = () => {
       <View style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
-          
+
           <TouchableOpacity
             style={styles.settingItem}
             onPress={() => navigation.navigate('Profile')}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="person-outline" size={24} color={COLORS.textcolor} />
+              <Ionicons name="person-outline" size={24} color={COLORS.accent} />
               <Text style={styles.settingText}>Edit Profile</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
@@ -211,7 +211,7 @@ export const SettingsScreen = () => {
             onPress={() => setShowPasswordModal(true)}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="lock-closed-outline" size={24} color={COLORS.textcolor} />
+              <Ionicons name="lock-closed-outline" size={24} color={COLORS.accent} />
               <Text style={styles.settingText}>Change Password</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#ccc" />
@@ -220,14 +220,14 @@ export const SettingsScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data</Text>
-          
+
           <TouchableOpacity
             style={styles.settingItem}
             onPress={exportToPDF}
             disabled={loading}
           >
             <View style={styles.settingLeft}>
-              <Ionicons name="document-text-outline" size={24} color={COLORS.textcolor} />
+              <Ionicons name="document-text-outline" size={24} color={COLORS.accent} />
               <Text style={styles.settingText}>
                 {loading ? 'Generating PDF...' : 'Export Data as PDF'}
               </Text>
@@ -238,7 +238,7 @@ export const SettingsScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Actions</Text>
-          
+
           <TouchableOpacity style={styles.settingItem} onPress={handleSignOut}>
             <View style={styles.settingLeft}>
               <Ionicons name="log-out-outline" size={24} color="#f44336" />
@@ -250,7 +250,7 @@ export const SettingsScreen = () => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>MoodMeal v1.0.0</Text>
-          <Text style={styles.footerText}>Track your meals and symptoms</Text>
+          <Text style={styles.footerText}>Track your meals, moods, and symptoms</Text>
         </View>
       </View>
 
@@ -267,38 +267,41 @@ export const SettingsScreen = () => {
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Change Password</Text>
             <TouchableOpacity onPress={changePassword} disabled={loading}>
-              <Text style={[styles.saveButton, loading && styles.disabledButton]}>
+              <Text style={[styles.modalSaveButton, loading && styles.disabledButton]}>
                 {loading ? 'Saving...' : 'Save'}
               </Text>
             </TouchableOpacity>
           </View>
 
           <ScrollView style={styles.modalContent}>
-            <Text style={styles.label}>Current Password</Text>
+            <Text style={styles.modalLabel}>Current Password</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               value={currentPassword}
               onChangeText={setCurrentPassword}
               secureTextEntry
               placeholder="Enter current password"
+              placeholderTextColor="#606060"
             />
 
-            <Text style={styles.label}>New Password</Text>
+            <Text style={styles.modalLabel}>New Password</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
               placeholder="Enter new password"
+              placeholderTextColor="#606060"
             />
 
-            <Text style={styles.label}>Confirm New Password</Text>
+            <Text style={styles.modalLabel}>Confirm New Password</Text>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
               placeholder="Confirm new password"
+              placeholderTextColor="#606060"
             />
           </ScrollView>
         </View>
@@ -310,13 +313,13 @@ export const SettingsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background_color  ,
+    backgroundColor: COLORS.background,
   },
   content: {
     padding: 16,
   },
   section: {
-    backgroundColor: COLORS.container,
+    backgroundColor: COLORS.surface,
     borderRadius: 8,
     marginBottom: 16,
     overflow: 'hidden',
@@ -324,11 +327,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.whitetext,
+    color: COLORS.text,
     padding: 16,
-    backgroundColor: COLORS.container,
+    backgroundColor: COLORS.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#444',
   },
   settingItem: {
     flexDirection: 'row',
@@ -336,7 +339,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#444',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -344,10 +347,9 @@ const styles = StyleSheet.create({
   },
   settingText: {
     fontSize: 16,
-    color: COLORS.textcolor,
+    color: COLORS.accent,
     marginLeft: 12,
-    fontWeight: 'bold'
-
+    fontWeight: 'bold',
   },
   footer: {
     alignItems: 'center',
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: COLORS.background,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -369,20 +371,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#444',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text,
   },
   cancelButton: {
     fontSize: 16,
-    color: '#666',
+    color: '#999',
   },
-  saveButton: {
+  modalSaveButton: {
     fontSize: 16,
-    color: '#2e7d32',
+    color: COLORS.accent,
     fontWeight: 'bold',
   },
   disabledButton: {
@@ -392,18 +394,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  label: {
+  modalLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text,
     marginBottom: 8,
     marginTop: 16,
   },
-  input: {
+  modalInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#555',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    color: COLORS.text,
   },
 });

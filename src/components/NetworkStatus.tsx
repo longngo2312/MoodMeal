@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 
-export const NetworkStatus = () => {
+export const NetworkStatus: React.FC = () => {
   const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      setIsConnected(state.isConnected);
+      setIsConnected(state.isConnected ?? true);
     });
 
     return () => unsubscribe();

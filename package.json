@@ -16,6 +16,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.2",
+    "@react-native-async-storage/async-storage": "^3.0.1",
     "@react-native-community/netinfo": "11.4.1",
     "@react-native-community/slider": "5.0.1",
     "@react-native-masked-view/masked-view": "0.3.2",
@@ -48,7 +49,11 @@
     "react-native-web": "^0.21.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0"
+    "@babel/core": "^7.26.0",
+    "@types/react": "^19.2.14",
+    "@types/react-native": "^0.72.8",
+    "@types/react-native-vector-icons": "^6.4.18",
+    "typescript": "^5.9.3"
   },
   "private": true
 }
