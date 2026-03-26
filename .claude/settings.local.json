@@ -17,7 +17,8 @@
       "Bash(done)",
       "Bash(npx prisma:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npx expo:*)"
+      "Bash(npx expo:*)",
+      "Bash(find /c/Users/Crack/OneDrive/Documents/GitHub/MoodMeal -type f \\\\\\(-name *.test.ts -o -name *.test.tsx -o -name *.spec.ts -o -name *.spec.tsx \\\\\\))"
     ]
   }
 }
