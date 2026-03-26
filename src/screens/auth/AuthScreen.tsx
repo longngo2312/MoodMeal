@@ -16,6 +16,21 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Feather from 'react-native-vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 
+// TODO: [Phase 3.4] Replace the static LinearGradient background with a Three.js canvas.
+//   Create src/components/three/GlassSpheres.tsx — renders 12–15 translucent
+//   glass spheres drifting slowly through a deep-space background.
+//   Each sphere uses MeshPhysicalMaterial with:
+//     roughness: 0, metalness: 0.2, transmission: 0.9 (makes them look like glass)
+//   The canvas sits behind the form (position: 'absolute', zIndex: -1).
+//   On mobile, also respond to device tilt via expo-sensors for parallax movement.
+//
+// TODO: [Phase 2.1] Convert the white formContainer to a GlassCard component
+//   once GlassCard.tsx is built — it'll look like a frosted panel floating over the spheres.
+//
+// RESOURCES:
+//   @react-three/fiber (Three.js for React) — https://docs.pmnd.rs/react-three-fiber/getting-started/introduction
+//   Three.js MeshPhysicalMaterial — https://threejs.org/docs/#api/en/materials/MeshPhysicalMaterial
+//   expo-sensors (device tilt) — https://docs.expo.dev/versions/latest/sdk/sensors/
 export const AuthScreen: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');

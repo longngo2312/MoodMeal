@@ -86,6 +86,25 @@ const ONBOARDING_KEY = '@moodmeal_onboarding_complete';
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
+// TODO: [Phase 3.3] Rebuild the onboarding with a 3D particle background.
+//   Create src/components/three/ParticleField.tsx using Three.js PointsMaterial.
+//   The particle shape morphs on each slide swipe:
+//     Slide 1 → scattered cloud (random positions)
+//     Slide 2 → DNA double helix
+//     Slide 3 → heart shape
+//     Slide 4 → brain/neural network shape
+//     Slide 5 → spiral galaxy
+//   Morph = lerp (linear interpolation) particle positions over ~600ms using
+//   Reanimated shared values passed as uniforms to the shader.
+//
+//   Keep the existing FlatList swipe logic and pagination dots — only replace
+//   the background and the icon circles with the 3D canvas.
+//   Slide content cards → GlassCard with glassmorphism over the particle field.
+//
+// RESOURCES:
+//   Three.js Points / PointsMaterial — https://threejs.org/docs/#api/en/materials/PointsMaterial
+//   Particle morph technique — https://threejs.org/examples/#webgl_morphtargets_points
+//   Reanimated interpolation — https://docs.swmansion.com/react-native-reanimated/docs/animations/withTiming
 export const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const [currentIndex, setCurrentIndex] = useState(0);

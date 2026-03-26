@@ -1,3 +1,11 @@
+// TODO: [Phase 1.2] Add new glass/glow token fields to this interface:
+//   glass: string           — frosted glass card background  rgba(255,255,255,0.06)
+//   glassBorder: string     — glass edge highlight           rgba(255,255,255,0.12)
+//   glassHighlight: string  — glass inner shine              rgba(255,255,255,0.18)
+//   glow: string            — primary violet glow            rgba(130,110,245,0.4)
+//   accentGlow: string      — cyan glow                      rgba(0,230,255,0.3)
+//   backgroundDeep: string  — deeper space background        #060614
+// RESOURCE: TypeScript interfaces — https://www.typescriptlang.org/docs/handbook/2/objects.html
 export interface ColorPalette {
   background: string;
   surface: string;
@@ -22,6 +30,10 @@ export interface ColorPalette {
   gradientEnd: string;
 }
 
+// TODO: [Phase 1.2] After adding fields to ColorPalette above, add matching values
+//   to BOTH darkColors and lightColors below.
+//   darkColors:  backgroundDeep: '#060614', glass: 'rgba(255,255,255,0.06)', etc.
+//   lightColors: backgroundDeep: '#e8e8f0', glass: 'rgba(0,0,0,0.04)', etc.
 export const darkColors: ColorPalette = {
   background: '#111111',
   surface: '#2c2c2c',

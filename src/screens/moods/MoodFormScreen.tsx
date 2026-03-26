@@ -19,6 +19,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { moodService, MoodFormData } from '../../services/moodService';
 import { RootStackParamList } from '../../types';
 
+// TODO: [Phase 1.2] Replace local COLORS with useTheme() — same pattern as DashboardScreen.
+//
+// TODO: [Phase 4.2] Add micro-interactions to mood selection:
+//   1. Emoji cards — on select, run a Reanimated spring scale: 1 → 1.3 → 1
+//      and a glow ring (use Skia Canvas) that fades in around the selected emoji.
+//   2. Energy slider — replace the default @react-native-community/slider with a
+//      custom Skia-drawn slider track. The filled portion glows in the selected mood's color.
+//      The thumb is a glowing circle that pulses at 1Hz.
+//   3. Deselect animation — previously selected emoji shrinks back: 1 → 0.9 → 1 (spring)
+//
+// RESOURCES:
+//   Reanimated spring — https://docs.swmansion.com/react-native-reanimated/docs/animations/withSpring
+//   react-native-skia Canvas — https://shopify.github.io/react-native-skia/docs/canvas/overview
+//   Custom slider with Skia — https://shopify.github.io/react-native-skia/docs/shapes/path
 const COLORS = {
   background: '#111111',
   accent: '#00e6ff',

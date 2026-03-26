@@ -1,3 +1,17 @@
+// TODO: [Phase 2.2] Redesign Button variants with modern treatments:
+//   'primary'   → keep gradient + add a Skia glow halo drawn beneath the button
+//   'secondary' → glass surface (rgba white bg) with gradient border ring
+//   'ghost'     → text only + animated underline that grows on press (Reanimated width)
+//   'danger'    → red-tinted glass surface
+//
+//   All variants: wrap onPress to also call
+//     Haptics.impactAsync(ImpactFeedbackStyle.Light)   ← makes press feel physical
+//   Replace TouchableOpacity → Pressable + useAnimatedStyle for scale feedback.
+//
+// RESOURCES:
+//   expo-haptics — https://docs.expo.dev/versions/latest/sdk/haptics/
+//   Reanimated Pressable pattern — https://docs.swmansion.com/react-native-reanimated/docs/gestures/animated-gesture-handler
+//   @shopify/react-native-skia (for glow) — https://shopify.github.io/react-native-skia/docs/getting-started/installation
 import React from 'react';
 import {
   TouchableOpacity,

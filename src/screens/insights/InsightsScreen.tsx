@@ -8,6 +8,31 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+// TODO: [Phase 3.2] Replace react-native-chart-kit flat charts with 3D Three.js visualizations:
+//
+//   LineChart (mood timeline) →
+//     Create src/components/three/DataRibbon.tsx
+//     A 3D ribbon flowing through time using THREE.TubeGeometry along a CatmullRomCurve3.
+//     Each curve point's Y = energy level, color = mood type color.
+//     User can pinch-zoom and pan the ribbon with react-native-gesture-handler.
+//
+//   BarChart (symptom frequency) →
+//     Floating 3D cylinders (BoxGeometry) — taller = more frequent symptom.
+//     Each bar glows with the symptom's color. Tap bar → shows symptom detail modal.
+//
+//   PieChart (meal distribution) →
+//     3D donut using TorusGeometry, auto-rotates on Y axis at 0.005 rad/frame.
+//     Each segment is a separate mesh; tap to highlight and show label.
+//
+//   Keep react-native-chart-kit as a fallback for devices that don't support WebGL.
+//
+// TODO: [Phase 1.2] Replace local COLORS constant with useTheme() — same pattern as Dashboard.
+//
+// RESOURCES:
+//   THREE.TubeGeometry — https://threejs.org/docs/#api/en/geometries/TubeGeometry
+//   THREE.CatmullRomCurve3 — https://threejs.org/docs/#api/en/extras/curves/CatmullRomCurve3
+//   react-native-gesture-handler — https://docs.swmansion.com/react-native-gesture-handler/docs/
+//   Three.js journey (free chapters) — https://threejs-journey.com/
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
 import { useFocusEffect } from '@react-navigation/native';
 

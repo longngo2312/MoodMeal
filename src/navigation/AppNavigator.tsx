@@ -22,6 +22,11 @@ import { RootStackParamList, BottomTabParamList } from '../types';
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
+// TODO: [Phase 1.2] Replace this local COLORS constant with useTheme() hook.
+//   Import { useTheme } from '../theme' inside TabNavigator and AppNavigator,
+//   then replace all COLORS.x references with theme.colors.x.
+//   This ensures dark/light mode works correctly everywhere.
+// RESOURCE: React useContext (which useTheme is built on) — https://react.dev/reference/react/useContext
 const COLORS = {
   accent: '#00e6ff',
   text: '#eeeeee',
@@ -29,6 +34,23 @@ const COLORS = {
   header: '#4037dfff',
 };
 
+// TODO: [Phase 2.4] Redesign the tab bar into a floating glassmorphic pill:
+//   tabBarStyle changes:
+//     position: 'absolute'     ← detaches it from edge
+//     bottom: 24               ← floats above edge
+//     left: 24, right: 24      ← side margins
+//     borderRadius: 28         ← pill shape
+//     backgroundColor: 'rgba(20,20,40,0.8)'
+//     borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)'
+//   Wrap in a BlurView for the frosted glass effect.
+//   Active tab icon: animated Reanimated scale spring (1 → 1.2 → 1) on press.
+//   Active indicator: animated pill underline that slides between tabs.
+//
+// TODO: [Phase 1.3] Add Reanimated screen transitions to the Stack.Navigator:
+//   Use cardStyleInterpolator from @react-navigation/stack for:
+//     Modal screens (MealForm, MoodForm, etc.) → vertical slide from bottom
+//     Tab switch → horizontal fade-slide
+// RESOURCE: React Navigation custom transitions — https://reactnavigation.org/docs/stack-navigator/#animation-related-options
 const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator

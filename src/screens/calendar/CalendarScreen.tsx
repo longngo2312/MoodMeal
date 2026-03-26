@@ -18,6 +18,21 @@ import { symptomService } from '../../services/symptomService';
 import { moodService } from '../../services/moodService';
 import { Meal, Symptom, Mood, DayData, RootStackParamList } from '../../types';
 
+// TODO: [Phase 1.2] Replace local COLORS with useTheme() — same pattern as DashboardScreen.
+//
+// TODO: [Phase 4.4] Polish calendar interactions:
+//   1. Selected day cell — animate a "lifted" feel: scale 1 → 1.08 + shadow increase (Reanimated).
+//   2. Multi-dot markers — stagger their appearance when a new month loads.
+//      Use Reanimated FadeIn with a delay: dot[0] delay 0ms, dot[1] delay 50ms, etc.
+//   3. Day cells with data — render a soft mood-colored blur behind the day number.
+//      The blur color = the mood color for that day (use theme.colors for mood color map).
+//   4. Month swipe transition — add a horizontal swipe gesture that slides the month
+//      in/out instead of the default jump.
+//
+// RESOURCES:
+//   react-native-calendars theming — https://github.com/wix/react-native-calendars#customization
+//   Reanimated stagger animation — https://docs.swmansion.com/react-native-reanimated/docs/layout-animations/entering-exiting-animations
+//   react-native-gesture-handler pan — https://docs.swmansion.com/react-native-gesture-handler/docs/gestures/pan-gesture
 const COLORS = {
   background: '#111111',
   accent: '#00e6ff',

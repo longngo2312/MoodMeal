@@ -19,6 +19,10 @@ import { symptomService } from '../../services/symptomService';
 import { moodService } from '../../services/moodService';
 import { Meal, Symptom, Mood, RootStackParamList } from '../../types';
 
+// TODO: [Phase 1.2] Replace this local COLORS constant with the useTheme() hook.
+//   Add `const { theme } = useTheme();` inside DashboardScreen, then replace
+//   every COLORS.x reference with theme.colors.x throughout this file.
+// RESOURCE: Custom hooks in React — https://react.dev/learn/reusing-logic-with-custom-hooks
 const COLORS = {
   background: '#111111',
   accent: '#00e6ff',
@@ -188,6 +192,25 @@ export const DashboardScreen: React.FC = () => {
     </View>
   );
 
+  // TODO: [Phase 3.1] Add the MoodOrb 3D hero below the welcome banner.
+  //   Import MoodOrb from '../../components/three/MoodOrb'
+  //   Pass the latest mood type as a prop: <MoodOrb mood={getLatestMood()?.mood_type} />
+  //   The orb maps mood → color + animation speed:
+  //     great → #00e6ff (cyan, fast pulse)
+  //     good  → #826ef5 (violet, medium pulse)
+  //     okay  → #ffd700 (gold, slow drift)
+  //     bad   → #ff6b6b (red, heavy oscillation)
+  //     awful → #4a4a6a (muted, slow collapse)
+  //   Tapping the orb navigates to MoodForm.
+  //
+  // TODO: [Phase 4.1] Add skeleton loading state — while `loading` is true, render
+  //   <SkeletonLoader /> placeholders that match the card shapes below.
+  //   Import SkeletonLoader from '../../components/ui/SkeletonLoader'
+  //
+  // RESOURCES:
+  //   @react-three/fiber Canvas — https://docs.pmnd.rs/react-three-fiber/api/canvas
+  //   Three.js IcosahedronGeometry — https://threejs.org/docs/#api/en/geometries/IcosahedronGeometry
+  //   Skeleton loading pattern — https://www.reactnative.guide/
   return (
     <ScrollView
       style={styles.container}

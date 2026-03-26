@@ -19,6 +19,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { mealService } from '../../services/mealService';
 import { RootStackParamList, MealFormData } from '../../types';
 
+// TODO: [Phase 1.2] Replace local COLORS with useTheme() — same pattern as DashboardScreen.
+//
+// TODO: [Phase 4.2] Add micro-interactions to the meal form:
+//   1. Ingredient tags (TagList) — when a tag is added, it should fly in from the
+//      input field position using Reanimated Layout Animations (FadeInDown preset).
+//      When removed, it should shrink out with FadeOutUp.
+//   2. Meal time icons (Breakfast/Lunch/Dinner/Snack) — on select, animate a 3D flip
+//      using Reanimated rotateY: 0 → 180deg → 0 (spring). Show icon on front, checkmark on back.
+//   3. Submit button — on loading, replace text with animated pulsing dots (3 dots staggered).
+//
+// RESOURCES:
+//   Reanimated Layout Animations — https://docs.swmansion.com/react-native-reanimated/docs/layout-animations/entering-exiting-animations
+//   FadeInDown preset — https://docs.swmansion.com/react-native-reanimated/docs/layout-animations/entering-exiting-animations#fading
+//   3D flip card pattern — https://docs.swmansion.com/react-native-reanimated/docs/advanced/animations#flip-card
 const COLORS = {
   background: '#111111',
   accent: '#00e6ff',
