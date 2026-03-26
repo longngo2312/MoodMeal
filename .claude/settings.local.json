@@ -16,7 +16,8 @@
       "Bash(do sed:*)",
       "Bash(done)",
       "Bash(npx prisma:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Bash(npx expo:*)"
     ]
   }
 }

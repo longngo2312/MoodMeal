@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Alert,
   RefreshControl,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -16,7 +16,8 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../../contexts/AuthContext';
 import { mealService } from '../../services/mealService';
 import { symptomService } from '../../services/symptomService';
-import { Meal, Symptom, RootStackParamList } from '../../types';
+import { moodService } from '../../services/moodService';
+import { Meal, Symptom, Mood, RootStackParamList } from '../../types';
 
 const COLORS = {
   background: '#111111',
@@ -28,16 +29,21 @@ const COLORS = {
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
+const MOOD_COLORS: Record<string, string> = {
+  great: '#4caf50',
+  good: '#8bc34a',
+  okay: '#ff9800',
+  bad: '#ff5722',
+  awful: '#f44336',
+};
+
 export const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [symptoms, setSymptoms] = useState<Symptom[]>([]);
+  const [moods, setMoods] = useState<Mood[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    loadTodayData();
-  }, []);
 
   const loadTodayData = async () => {
     if (!user) return;
@@ -46,19 +52,27 @@ export const DashboardScreen: React.FC = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      const [mealsData, symptomsData] = await Promise.all([
+      const [mealsData, symptomsData, moodsData] = await Promise.all([
         mealService.getMealsByDate(user.id, today),
         symptomService.getSymptomsByDate(user.id, today),
+        moodService.getMoodsByDate(user.id, today),
       ]);
 
       setMeals(mealsData);
       setSymptoms(symptomsData);
+      setMoods(moodsData);
     } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
       setLoading(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTodayData();
+    }, [user])
+  );
 
   const quickLogSymptom = (symptomType: string, severity: number) => {
     const now = new Date();
@@ -77,6 +91,57 @@ export const DashboardScreen: React.FC = () => {
         created_at: '',
       },
     });
+  };
+
+  const getLatestMood = (): Mood | null => {
+    if (moods.length === 0) return null;
+    return moods[0];
+  };
+
+  const renderMoodSummary = () => {
+    const latestMood = getLatestMood();
+    if (!latestMood) {
+      return (
+        <TouchableOpacity
+          style={styles.moodPrompt}
+          onPress={() => navigation.navigate('MoodForm')}
+        >
+          <Text style={styles.moodPromptEmoji}>🤔</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.moodPromptTitle}>How are you feeling?</Text>
+            <Text style={styles.moodPromptSubtitle}>Tap to log your mood</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.accent} />
+        </TouchableOpacity>
+      );
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.moodSummary}
+        onPress={() => navigation.navigate('MoodForm')}
+      >
+        <Text style={styles.moodSummaryEmoji}>{latestMood.emoji}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.moodSummaryTitle}>
+            Feeling{' '}
+            <Text style={{ color: MOOD_COLORS[latestMood.mood_type] || COLORS.accent }}>
+              {latestMood.mood_type}
+            </Text>
+          </Text>
+          {latestMood.notes ? (
+            <Text style={styles.moodSummaryNotes} numberOfLines={1}>
+              {latestMood.notes}
+            </Text>
+          ) : null}
+        </View>
+        <View style={styles.moodScoreBadge}>
+          <Text style={styles.moodScoreText}>
+            ⚡ {latestMood.energy_level ?? '-'}/10
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   const renderMealCard = (meal: Meal) => (
@@ -102,6 +167,24 @@ export const DashboardScreen: React.FC = () => {
       </View>
       <Text style={styles.cardDescription}>{symptom.description}</Text>
       <Text style={styles.timeText}>Time: {symptom.time}</Text>
+    </View>
+  );
+
+  const renderMoodCard = (mood: Mood) => (
+    <View key={mood.id} style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 20, marginRight: 8 }}>{mood.emoji}</Text>
+          <Text style={[styles.cardTitle, { color: MOOD_COLORS[mood.mood_type] || COLORS.accent }]}>
+            {mood.mood_type.charAt(0).toUpperCase() + mood.mood_type.slice(1)}
+          </Text>
+        </View>
+        <Text style={styles.timeText}>{mood.time?.slice(0, 5)}</Text>
+      </View>
+      {mood.notes ? <Text style={styles.cardDescription}>{mood.notes}</Text> : null}
+      {mood.energy_level != null && (
+        <Text style={styles.ingredients}>Energy: {mood.energy_level}/10</Text>
+      )}
     </View>
   );
 
@@ -132,6 +215,11 @@ export const DashboardScreen: React.FC = () => {
           </LinearGradient>
         </View>
 
+        {/* Mood Summary */}
+        <View style={styles.containerSection}>
+          {renderMoodSummary()}
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.containerSection}>
           <View style={styles.section}>
@@ -151,9 +239,32 @@ export const DashboardScreen: React.FC = () => {
                 <Ionicons name="medical" size={24} color={COLORS.accent} />
                 <Text style={styles.actionButtonText}>Log Symptom</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('MoodForm')}
+              >
+                <Ionicons name="happy" size={24} color={COLORS.accent} />
+                <Text style={styles.actionButtonText}>Log Mood</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {/* AI Recommendations */}
+        <TouchableOpacity
+          style={styles.containerSection}
+          onPress={() => navigation.navigate('Recommendations')}
+        >
+          <View style={styles.aiBanner}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.aiBannerTitle}>AI Meal Recommendations</Text>
+              <Text style={styles.aiBannerSubtitle}>
+                Get personalized suggestions based on your data
+              </Text>
+            </View>
+            <Ionicons name="sparkles" size={28} color={COLORS.accent} />
+          </View>
+        </TouchableOpacity>
 
         {/* Quick Symptom Logging */}
         <View style={styles.containerSection}>
@@ -181,6 +292,16 @@ export const DashboardScreen: React.FC = () => {
             </View>
           </View>
         </View>
+
+        {/* Today's Moods */}
+        {moods.length > 0 && (
+          <View style={styles.containerSection}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Today's Moods ({moods.length})</Text>
+              {moods.map(renderMoodCard)}
+            </View>
+          </View>
+        )}
 
         {/* Today's Meals */}
         <View style={styles.containerSection}>
@@ -263,16 +384,16 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: COLORS.background,
     borderRadius: 8,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
-    flex: 0.48,
-    flexDirection: 'row',
+    flex: 0.31,
     justifyContent: 'center',
   },
   actionButtonText: {
     color: COLORS.accent,
     fontWeight: 'bold',
-    marginLeft: 8,
+    marginTop: 4,
+    fontSize: 12,
   },
   quickSymptoms: {
     flexDirection: 'row',
@@ -289,6 +410,69 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     fontWeight: 'bold',
     fontSize: 12,
+  },
+  moodPrompt: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  moodPromptEmoji: {
+    fontSize: 32,
+    marginRight: 12,
+  },
+  moodPromptTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  moodPromptSubtitle: {
+    fontSize: 12,
+    color: COLORS.accent,
+    marginTop: 2,
+  },
+  moodSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
+  },
+  moodSummaryEmoji: {
+    fontSize: 32,
+    marginRight: 12,
+  },
+  moodSummaryTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  moodSummaryNotes: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  moodScoreBadge: {
+    backgroundColor: COLORS.background,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  moodScoreText: {
+    fontSize: 12,
+    color: COLORS.accent,
+    fontWeight: 'bold',
+  },
+  aiBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  aiBannerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  aiBannerSubtitle: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
   },
   card: {
     backgroundColor: COLORS.background,

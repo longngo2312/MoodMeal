@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useAuth } from '../contexts/AuthContext';
 import { AuthScreen } from '../screens/auth/AuthScreen';
+import { OnboardingScreen, ONBOARDING_KEY } from '../screens/onboarding/OnboardingScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { DashboardScreen } from '../screens/dashboard/DashboardScreen';
 import { CalendarScreen } from '../screens/calendar/CalendarScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
 import { MealFormScreen } from '../screens/meals/MealFormScreen';
 import { SymptomFormScreen } from '../screens/symptoms/SymptomFormScreen';
+import { MoodFormScreen } from '../screens/moods/MoodFormScreen';
+import { InsightsScreen } from '../screens/insights/InsightsScreen';
+import { RecommendationsScreen } from '../screens/recommendations/RecommendationsScreen';
 import { RootStackParamList, BottomTabParamList } from '../types';
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -33,6 +38,8 @@ const TabNavigator: React.FC = () => {
 
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Insights') {
+            iconName = focused ? 'analytics' : 'analytics-outline';
           } else if (route.name === 'Calendar') {
             iconName = focused ? 'calendar' : 'calendar-outline';
           } else if (route.name === 'Settings') {
@@ -61,6 +68,11 @@ const TabNavigator: React.FC = () => {
         options={{ title: 'Dashboard' }}
       />
       <Tab.Screen
+        name="Insights"
+        component={InsightsScreen}
+        options={{ title: 'Insights' }}
+      />
+      <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
         options={{ title: 'Calendar' }}
@@ -76,8 +88,15 @@ const TabNavigator: React.FC = () => {
 
 export const AppNavigator: React.FC = () => {
   const { user, loading } = useAuth();
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
 
-  if (loading) {
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDING_KEY).then((value) => {
+      setOnboardingComplete(value === 'true');
+    });
+  }, []);
+
+  if (loading || onboardingComplete === null) {
     return null;
   }
 
@@ -86,6 +105,8 @@ export const AppNavigator: React.FC = () => {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
           <Stack.Screen name="Auth" component={AuthScreen} />
+        ) : !onboardingComplete ? (
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         ) : (
           <>
             <Stack.Screen name="Main" component={TabNavigator} />
@@ -115,6 +136,26 @@ export const AppNavigator: React.FC = () => {
               options={{
                 headerShown: true,
                 title: 'Log Symptom',
+                headerStyle: { backgroundColor: COLORS.header },
+                headerTintColor: 'white',
+              }}
+            />
+            <Stack.Screen
+              name="MoodForm"
+              component={MoodFormScreen}
+              options={{
+                headerShown: true,
+                title: 'Log Mood',
+                headerStyle: { backgroundColor: COLORS.header },
+                headerTintColor: 'white',
+              }}
+            />
+            <Stack.Screen
+              name="Recommendations"
+              component={RecommendationsScreen}
+              options={{
+                headerShown: true,
+                title: 'AI Recommendations',
                 headerStyle: { backgroundColor: COLORS.header },
                 headerTintColor: 'white',
               }}

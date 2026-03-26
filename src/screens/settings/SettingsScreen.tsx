@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Switch,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { useAuth } from '../../contexts/AuthContext';
 import { authService } from '../../services/authService';
 import { exportService } from '../../services/exportService';
+import { notificationService, NotificationPrefs } from '../../services/notificationService';
 import { RootStackParamList } from '../../types';
 
 const COLORS = {
@@ -36,6 +38,20 @@ export const SettingsScreen: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Notification prefs
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs | null>(null);
+
+  useEffect(() => {
+    notificationService.getPrefs().then(setNotifPrefs);
+  }, []);
+
+  const updateNotifPref = async (key: keyof NotificationPrefs, value: boolean) => {
+    if (!notifPrefs) return;
+    const updated = { ...notifPrefs, [key]: value };
+    setNotifPrefs(updated);
+    await notificationService.savePrefs(updated);
+  };
 
   const handleSignOut = async () => {
     Alert.alert(
@@ -132,6 +148,62 @@ export const SettingsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
+        {/* Notifications Section */}
+        {notifPrefs && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Notifications</Text>
+
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <Ionicons name="notifications-outline" size={24} color={COLORS.accent} />
+                <Text style={styles.settingText}>Enable Notifications</Text>
+              </View>
+              <Switch
+                value={notifPrefs.enabled}
+                onValueChange={(v) => updateNotifPref('enabled', v)}
+                trackColor={{ false: '#555', true: COLORS.accent + '60' }}
+                thumbColor={notifPrefs.enabled ? COLORS.accent : '#888'}
+              />
+            </View>
+
+            {notifPrefs.enabled && (
+              <>
+                <View style={styles.settingItem}>
+                  <View style={styles.settingLeft}>
+                    <Ionicons name="restaurant-outline" size={24} color="#4caf50" />
+                    <View>
+                      <Text style={styles.settingText}>Meal Reminders</Text>
+                      <Text style={styles.settingSubtext}>8:00, 12:30, 18:30</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={notifPrefs.mealReminders}
+                    onValueChange={(v) => updateNotifPref('mealReminders', v)}
+                    trackColor={{ false: '#555', true: '#4caf5060' }}
+                    thumbColor={notifPrefs.mealReminders ? '#4caf50' : '#888'}
+                  />
+                </View>
+
+                <View style={styles.settingItem}>
+                  <View style={styles.settingLeft}>
+                    <Ionicons name="happy-outline" size={24} color="#ff9800" />
+                    <View>
+                      <Text style={styles.settingText}>Mood Check-In</Text>
+                      <Text style={styles.settingSubtext}>Daily at 20:00</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={notifPrefs.moodCheckIn}
+                    onValueChange={(v) => updateNotifPref('moodCheckIn', v)}
+                    trackColor={{ false: '#555', true: '#ff980060' }}
+                    thumbColor={notifPrefs.moodCheckIn ? '#ff9800' : '#888'}
+                  />
+                </View>
+              </>
+            )}
+          </View>
+        )}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Data</Text>
 
@@ -163,7 +235,7 @@ export const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>MoodMeal v1.0.0</Text>
+          <Text style={styles.footerText}>MoodMeal v2.0.0</Text>
           <Text style={styles.footerText}>Track your meals, moods, and symptoms</Text>
         </View>
       </View>
@@ -264,6 +336,12 @@ const styles = StyleSheet.create({
     color: COLORS.accent,
     marginLeft: 12,
     fontWeight: 'bold',
+  },
+  settingSubtext: {
+    fontSize: 11,
+    color: '#999',
+    marginLeft: 12,
+    marginTop: 2,
   },
   footer: {
     alignItems: 'center',

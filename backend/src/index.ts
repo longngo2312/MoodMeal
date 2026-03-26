@@ -7,6 +7,7 @@ import profileRoutes from './routes/profiles';
 import mealRoutes from './routes/meals';
 import symptomRoutes from './routes/symptoms';
 import moodRoutes from './routes/moods';
+import recommendationRoutes from './routes/recommendations';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/profiles', profileRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/symptoms', symptomRoutes);
 app.use('/api/moods', moodRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Start server
 async function start() {
