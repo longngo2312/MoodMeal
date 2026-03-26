@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  profile  Profile?
+  meals    Meal[]
+  symptoms Symptom[]
+  moods    Mood[]
+
+  @@map("users")
+}
+
+model Profile {
+  id             String   @id @default(uuid())
+  userId         String   @unique @map("user_id")
+  name           String   @default("")
+  age            Int      @default(0)
+  gender         String   @default("Others")
+  medicalHistory String   @default("[]") @map("medical_history")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Meal {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  name        String
+  description String   @default("")
+  ingredients String   @default("[]")
+  mealTime    String   @map("meal_time")
+  date        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("meals")
+}
+
+model Symptom {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  symptomType String   @map("symptom_type")
+  severity    Int
+  description String   @default("")
+  date        String
+  time        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("symptoms")
+}
+
+model Mood {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  moodType    String   @map("mood_type")
+  moodScore   Int      @map("mood_score")
+  emoji       String
+  notes       String   @default("")
+  energyLevel Int?     @map("energy_level")
+  date        String
+  time        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("moods")
+}

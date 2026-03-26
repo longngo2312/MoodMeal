@@ -54,70 +54,6 @@ EXPO_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
-📖 **For detailed environment setup including GitHub Actions, see [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)**
-
-### 3. Create Database Tables
-
-Run these SQL commands in your Supabase SQL editor:
-
-```sql
--- Create profiles table
-CREATE TABLE profiles (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  age INTEGER NOT NULL,
-  gender TEXT NOT NULL,
-  medical_history TEXT[] DEFAULT '{}',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Create meals table
-CREATE TABLE meals (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  description TEXT,
-  ingredients TEXT[] NOT NULL,
-  meal_time TEXT NOT NULL,
-  date DATE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Create symptoms table
-CREATE TABLE symptoms (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  symptom_type TEXT NOT NULL,
-  severity INTEGER NOT NULL CHECK (severity >= 1 AND severity <= 10),
-  description TEXT,
-  date DATE NOT NULL,
-  time TIME NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE meals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE symptoms ENABLE ROW LEVEL SECURITY;
-
--- Create policies
-CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can view own meals" ON meals FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own meals" ON meals FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own meals" ON meals FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own meals" ON meals FOR DELETE USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can view own symptoms" ON symptoms FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own symptoms" ON symptoms FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own symptoms" ON symptoms FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own symptoms" ON symptoms FOR DELETE USING (auth.uid() = user_id);
-```
-
 ### 4. Run the App
 
 ```bash
@@ -128,29 +64,6 @@ This will start the Expo development server. You can then:
 - Press `i` to open iOS simulator
 - Press `a` to open Android emulator
 - Scan the QR code with Expo Go app on your phone
-
-## Project Structure
-
-```
-src/
-├── components/          # Reusable UI components
-├── contexts/           # React Context providers
-├── navigation/         # Navigation configuration
-├── screens/           # Screen components
-├── services/          # API and external services
-├── types/             # TypeScript type definitions
-└── utils/             # Utility functions
-```
-
-## Key Screens
-
-- **AuthScreen**: Login and registration
-- **ProfileScreen**: Create and edit user profile
-- **DashboardScreen**: Main dashboard with quick actions
-- **MealFormScreen**: Add/edit meals
-- **SymptomFormScreen**: Add/edit symptoms
-- **CalendarScreen**: Monthly view of data
-- **SettingsScreen**: Account settings and data export
 
 ## Usage
 
@@ -176,3 +89,5 @@ This project is licensed under the Apache License 2.0 - see the LICENSE file for
 ## Support
 
 For support or questions, please open an issue in the GitHub repository.
+
+## Demo
